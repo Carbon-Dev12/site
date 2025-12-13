@@ -38,3 +38,23 @@ btn.id = 'print-btn';
 btn.innerHTML = '<i class="fas fa-download"></i> Save as PDF';
 btn.onclick = () => window.print();
 document.body.appendChild(btn);
+document.addEventListener('DOMContentLoaded', () => {
+    const privacyBtn = document.getElementById('privacy-btn');
+    const dmcaBtn = document.getElementById('dmca-btn');
+    const privacyContent = document.getElementById('privacy-content');
+    const dmcaContent = document.getElementById('dmca-content');
+
+    privacyBtn.addEventListener('click', () => {
+        privacyContent.classList.add('active');
+        dmcaContent.classList.remove('active');
+        privacyBtn.classList.add('active');
+        dmcaBtn.classList.remove('active');
+    });
+
+    dmcaBtn.addEventListener('click', () => {
+        dmcaContent.classList.add('active');
+        privacyContent.classList.remove('active');
+        dmcaBtn.classList.add('active');
+        privacyBtn.classList.remove('active');
+    });
+});
