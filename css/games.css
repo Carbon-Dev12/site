@@ -1,6 +1,10 @@
+/* ------------------------------------------------------------------------ */
+/* --- GLOBAL RESET & LAYOUT --- */
+/* ------------------------------------------------------------------------ */
 html, body, .content, #game-view, #game-iframe {
     height: 100% !important; margin: 0 !important; padding: 0 !important;
 }
+/* BEST SMOOTH THEME SWITCHING */
 html {
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -28,59 +32,11 @@ body {
     will-change: background-position;
 }
 .content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: visible; }
-html, body { background: #0b1120 !important; }
+html, body { background: #0b1120 !important; }   /* ← THIS IS THE KEY LINE */
 
-html[data-snow="true"]:not([data-theme="xmas"])::before {
-    content: "";
-    position: fixed;
-    top: -10%;
-    left: 0;
-    width: 100%;
-    height: 120%;
-    pointer-events: none;
-    z-index: 9999;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.8) 4px, transparent 4px),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.7) 3px, transparent 3px),
-        radial-gradient(circle at 40% 40%, rgba(255,255,255,0.9) 5px, transparent 5px);
-    background-size: 200px 200px, 300px 300px, 250px 250px;
-    background-position: 0 0, 100px 100px, 50px 150px;
-    animation: snowfall 12s linear infinite;
-    opacity: 0.7;
-    will-change: transform;
-}
-@keyframes snowfall {
-    0% { transform: translateY(-100%) translateX(-50px); }
-    100% { transform: translateY(100vh) translateX(50px); }
-}
-
-/* Christmas Snow — replaces particles when Christmas theme is selected didnt work </3*/
-html[data-theme="xmas"] #particle-canvas { display: none !important; }
-html[data-theme="xmas"]::before {
-    content: "";
-    position: fixed;
-    top: -10%;
-    left: 0;
-    width: 100%;
-    height: 120%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.9;
-    background: 
-        radial-gradient(circle at 15% 75%, rgba(255,255,255,0.95) 3px, transparent 3px),
-        radial-gradient(circle at 85% 25%, rgba(255,255,255,0.85) 4px, transparent 4px),
-        radial-gradient(circle at 45% 55%, rgba(255,200,200,1)   2px, transparent 2px),
-        radial-gradient(circle at 60% 80%, rgba(200,255,200,1)   2px, transparent 2px),
-        radial-gradient(circle at 30% 40%, rgba(255,255,255,0.9) 5px, transparent 5px);
-    background-size: 180px 180px, 280px 280px, 150px 150px, 200px 200px, 250px 250px;
-    animation: snowfall 10s linear infinite, sway 18s ease-in-out infinite alternate;
-    will-change: transform;
-}
-@keyframes sway {
-    from { transform: translateX(-25px); }
-    to   { transform: translateX(25px); }
-}
-
+/* ------------------------------------------------------------------------ */
+/* --- PURE-CSS RIPPLE CLICK EFFECT --- */
+/* ------------------------------------------------------------------------ */
 .game-box,
 .play-btn,
 .about-blank-btn,
@@ -304,10 +260,10 @@ input:checked + .slider:before { transform: translateX(24px); }
     transform: scale(1.02);
 }
 .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--color-accent-main); font-size: 1.1rem; }
-
+/* ADD THIS ONE LINE AT THE VERY TOP OF YOUR CSS (right after the global reset) */
 body { background: var(--color-primary-bg) !important; }
 /* ------------------------------------------------------------------------ */
-/* --- clear game cards --- */
+/* --- GLASSMORPHISM CARDS (super premium frosted glass look) --- */
 /* ------------------------------------------------------------------------ */
 .game-box,
 .setting-item,
@@ -337,46 +293,20 @@ body { background: var(--color-primary-bg) !important; }
 /* ------------------------------------------------------------------------ */
 /* --- THEMES --- */
 /* ------------------------------------------------------------------------ */
-[data-theme="dark"]       { --color-primary-bg:#1a1a2e; --color-secondary-bg:#1f2937; --color-accent-main:#8b5cf6; --color-accent-hover:#7c3aed; --color-text:#f3f4f6; --color-border:#4b5563; }
-[data-theme="hacker"]     { --color-primary-bg:#000; --color-secondary-bg:#0d110d; --color-accent-main:#00ff00; --color-accent-hover:#00cc00; --color-text:#00ff00; --color-border:#006600; }
-[data-theme="cotton-candy"] { --color-primary-bg:#F8BBD0; --color-secondary-bg:#fdf0f5; --color-accent-main:#6A5ACD; --color-accent-hover:#5A4AA9; --color-text:#2d1b3a; --color-border:#F48FB1; }
-[data-theme="neon"]       { --color-primary-bg:#111; --color-secondary-bg:#222; --color-accent-main:#00f8ff; --color-accent-hover:#00d6db; --color-text:#f0f0f0; --color-border:#008080; }
-[data-theme="galaxy"]     { --color-primary-bg:#090518; --color-secondary-bg:#1d1836; --color-accent-main:#a78bfa; --color-accent-hover:#8b5cf6; --color-text:#e9d5ff; --color-border:#4c3d82; }
-[data-theme="sunset"]     { --color-primary-bg:#330000; --color-secondary-bg:#4e1a00; --color-accent-main:#ff8c42; --color-accent-hover:#e06c27; --color-text:#fff6f0; --color-border:#8c331a; }
-[data-theme="forest"]     { --color-primary-bg:#0d3a17; --color-secondary-bg:#185125; --color-accent-main:#a3e635; --color-accent-hover:#84cc16; --color-text:#ecfccb; --color-border:#4c7c59; }
-[data-theme="midnight"] {
-    --color-primary-bg: #0d001a !important;
-    --color-secondary-bg: rgba(20, 5, 50, 0.4) !important;
-    --color-accent-main: #8b5cf6 !important;        /* electric purple */
-    --color-accent-hover: #c084fc !important;       /* brighter purple */
-    --color-text: #e0c3fc !important;               /* soft lavender */
-    --color-border: rgba(139, 92, 246, 0.4) !important;
-}
+[data-theme="dark"]       { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#8b5cf6; --color-accent-hover:#a78bfa; --color-text:#e0e7ff; --color-text-muted:#94a3b8; --color-border:#1e293b; }
+[data-theme="light"]      { --color-primary-bg:#fafafa; --color-secondary-bg:#ffffff; --color-accent-main:#6366f1; --color-accent-hover:#4f46e5; --color-text:#0f172a; --color-text-muted:#64748b; --color-border:#e2e8f0; }
+[data-theme="amoled"]     { --color-primary-bg:#000000; --color-secondary-bg:#110000; --color-accent-main:#ff2e63; --color-accent-hover:#ff477e; --color-text:#ffffff; --color-text-muted:#aaaaaa; --color-border:#000000; }
+[data-theme="matrix"]     { --color-primary-bg:#050a05; --color-secondary-bg:#0a140a; --color-accent-main:#00ff41; --color-accent-hover:#00ff80; --color-text:#00ff41; --color-text-muted:#00cc33; --color-border:#003300; }
+[data-theme="blood"]      { --color-primary-bg:#0a0000; --color-secondary-bg:#110000; --color-accent-main:#ff1744; --color-accent-hover:#ff4569; --color-text:#ff8a80; --color-text-muted:#ff5252; --color-border:#330000; }
+[data-theme="sunset"]     { --color-primary-bg:#0a0515; --color-secondary-bg:#0f0a1f; --color-accent-main:#ff6b6b; --color-accent-hover:#ff5252; --color-text:#ffeaa7; --color-text-muted:#fdcb6e; --color-border:#331133; }
+[data-theme="forest"]     { --color-primary-bg:#000a05; --color-secondary-bg:#001a0f; --color-accent-main:#00ff9d; --color-accent-hover:#00cc7a; --color-text:#b2ffd6; --color-text-muted:#66ffb3; --color-border:#003322; }
+[data-theme="cyberpunk"]  { --color-primary-bg:#0a000a; --color-secondary-bg:#0f000f; --color-accent-main:#ff00ff; --color-accent-hover:#ff44ff; --color-text:#00ffff; --color-text-muted:#00cccc; --color-border:#330033; }
+[data-theme="midnight"]   { --color-primary-bg:#05050a; --color-secondary-bg:#0a0a14; --color-accent-main:#5ce1e6; --color-accent-hover:#7fffd4; --color-text:#e0f7fa; --color-text-muted:#80deea; --color-border:#006064; }
+[data-theme="purplehaze"] { --color-primary-bg:#050005; --color-secondary-bg:#0a000a; --color-accent-main:#d946ef; --color-accent-hover:#e879f9; --color-text:#f5d0fe; --color-text-muted:#e9aef7; --color-border:#330033; }
+[data-theme="coffee"]     { --color-primary-bg:#0a0500; --color-secondary-bg:#0f0a05; --color-accent-main:#ff9f1c; --color-accent-hover:#ffb84d; --color-text:#f4e4d5; --color-text-muted:#d4a574; --color-border:#332211; }
+[data-theme="ocean"]      { --color-primary-bg:#00000a; --color-secondary-bg:#000011; --color-accent-main:#38bdf8; --color-accent-hover:#0ea5e9; --color-text:#e0f2fe; --color-text-muted:#94a3b8; --color-border:#002233; }
 
-/* Deep space gradient background — only for midnight */
-html[data-theme="midnight"],
-body[data-theme="midnight"] {
-    background: 
-        radial-gradient(ellipse at top,    rgba(139, 92, 246, 0.15) 0%,   transparent 50%),
-        radial-gradient(ellipse at bottom, rgba(59, 130, 246, 0.15) 0%,   transparent 50%),
-        linear-gradient(135deg, #0d001a 0%, #1a0033 50%, #0f0a1f 100%) !important;
-    background-attachment: fixed;
-}
-
-[data-theme="midnight"] .game-box,
-[data-theme="midnight"] .setting-item,
-[data-theme="midnight"] .theme-option,
-[data-theme="midnight"] .showcase-game {
-    background: rgba(30, 10, 80, 0.3) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(139, 92, 246, 0.3) !important;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, ソフト0.6),
-        inset 0 0 30px rgba(139, 92, 246, 0.15),
-        0 0 30px rgba(139, 92, 246, 0.25) !important;
-}
-
+/* Hover = intense electric glow */
 [data-theme="midnight"] .game-box:hover,
 [data-theme="midnight"] .setting-item:hover,
 [data-theme="midnight"] .theme-option:hover {
@@ -410,33 +340,36 @@ body[data-theme="midnight"] {
     50%      { box-shadow: 0 0 50px rgba(139, 92, 246, 1),   0 0 90px rgba(139, 92, 246, 0.6); }
 }
 /* ------------------------------------------------------------------------ */
-/* --- CHRISTMAS THEME --- */
+/* --- CHRISTMAS THEME — SUPER SIMPLE IMAGE BACKGROUND --- */
 /* ------------------------------------------------------------------------ */
 [data-theme="xmas"] {
     --color-primary-bg: transparent !important;
     --color-secondary-bg: rgba(10, 10, 40, 0.7);
     --color-accent-main: #ef4444;
     --color-accent-hover: #dc2626;
-    --color-text: #fefce8;
+    --color-text: #fefce8
     !important;
     --color-border: #22c55e;
 }
 
+/* Beautiful Christmas image background — just paste your image URL here */
 html[data-theme="xmas"],
 body[data-theme="xmas"] {
     background: url('https://www.designyourway.net/blog/wp-content/uploads/2024/04/christmas-wallpaper-from-designyourway-1200x700.jpg') center/cover no-repeat fixed !important;
-    background-color: #0b0518 !important;
+    background-color: #0b0518 !important; /* fallback dark color */
 }
 
+/* Optional: slightly darken the image so text stays readable */
 html[data-theme="xmas"]::after {
     content: "";
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 30, 0.5);
+    background: rgba(0, 0, 30, 0.5); /* dark overlay — change 0.5 to 0.3 if you want it brighter */
     pointer-events: none;
     z-index: 1;
 }
 
+/* Your existing pulsing buttons (unchanged) */
 [data-theme="xmas"] .play-btn,
 [data-theme="xmas"] #fullscreen-btn-game,
 [data-theme="xmas"] .save-btn {
@@ -448,7 +381,7 @@ html[data-theme="xmas"]::after {
 }
 
 /* ------------------------------------------------------------------------ */
-/* --- clean scrollbars --- */
+/* --- CLEAN & BEAUTIFUL SCROLLBARS --- */
 /* ------------------------------------------------------------------------ */
 #games-view, #settings-view {
     -ms-overflow-style: none;
@@ -478,6 +411,9 @@ html[data-theme="xmas"]::after {
     background: var(--color-accent-hover);
 }
 
+/* ------------------------------------------------------------------------ */
+/* --- ACCESSIBILITY: Reduced motion --- */
+/* ------------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     .shooting-star, #particle-canvas { display: none; }
@@ -534,7 +470,7 @@ html.loaded #home-page-view {
     animation: spin 1s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* ==================== SETTINGS PAGE ==================== */
+/* ==================== SETTINGS PAGE – CLEAN & FIXED ==================== */
 #settings-view {
     padding: 2rem;
     max-width: 1100px;
@@ -568,6 +504,7 @@ html.loaded #home-page-view {
     text-align: center;
 }
 
+/* Rows inside settings */
 .setting-row {
     display: flex;
     align-items: center;
@@ -585,6 +522,7 @@ html.loaded #home-page-view {
     color: #e0e0ff;
 }
 
+/* Toggle Switch – Beautiful & Working */
 .toggle {
     position: relative;
     display: inline-block;
@@ -699,7 +637,7 @@ input[type="range"]::-webkit-slider-thumb {
 .save-btn.bg-red-600:hover {
     background: #ef4444 !important;
 }
-/* === CINVISIBLE SCROLLBAR === */
+/* === COMPLETELY INVISIBLE SCROLLBAR (but still scrollable) === */
 #games-view,
 #settings-view,
 #game-box-wrapper,
@@ -715,3 +653,46 @@ body::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
+
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 10;
+}
+.game-box:hover .favorite-btn { opacity: 1; }
+.favorite-btn i { font-size: 14px; color: #fff; }
+.favorite-btn.favorited i { color: #ff006e; }
+.favorite-btn.favorited::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,0,110,0.2);
+    border-radius: 50%;
+}
+#game-view button {
+    position: absolute;
+    top: 16px;
+    z-index: 10;
+    background: rgba(31, 41, 55, 0.9);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#newtab-btn-game       { left: 16px; }
+#fullscreen-btn-game   { right: 16px; }
+#game-view button:hover { background: rgba(0, 0, 0, 0.95); transform: scale(1.1); }

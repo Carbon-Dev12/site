@@ -295,16 +295,16 @@ body { background: var(--color-primary-bg) !important; }
 /* ------------------------------------------------------------------------ */
 [data-theme="dark"]       { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#8b5cf6; --color-accent-hover:#a78bfa; --color-text:#e0e7ff; --color-text-muted:#94a3b8; --color-border:#1e293b; }
 [data-theme="light"]      { --color-primary-bg:#fafafa; --color-secondary-bg:#ffffff; --color-accent-main:#6366f1; --color-accent-hover:#4f46e5; --color-text:#0f172a; --color-text-muted:#64748b; --color-border:#e2e8f0; }
-[data-theme="amoled"]     { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#ff2e63; --color-accent-hover:#ff477e; --color-text:#ffffff; --color-text-muted:#aaaaaa; --color-border:#000000; }
-[data-theme="matrix"]     { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#00ff41; --color-accent-hover:#00ff80; --color-text:#00ff41; --color-text-muted:#00cc33; --color-border:#003300; }
-[data-theme="blood"]      { --color-primary-bg:#000000; --color-secondary-bg:#110000; --color-accent-main:#ff1744; --color-accent-hover:#ff4569; --color-text:#ff8a80; --color-text-muted:#ff5252; --color-border:#330000; }
-[data-theme="sunset"]     { --color-primary-bg:#000000; --color-secondary-bg:#0f0a1f; --color-accent-main:#ff6b6b; --color-accent-hover:#ff5252; --color-text:#ffeaa7; --color-text-muted:#fdcb6e; --color-border:#331133; }
-[data-theme="forest"]     { --color-primary-bg:#000000; --color-secondary-bg:#001a0f; --color-accent-main:#00ff9d; --color-accent-hover:#00cc7a; --color-text:#b2ffd6; --color-text-muted:#66ffb3; --color-border:#003322; }
-[data-theme="cyberpunk"]  { --color-primary-bg:#000000; --color-secondary-bg:#0f000f; --color-accent-main:#ff00ff; --color-accent-hover:#ff44ff; --color-text:#00ffff; --color-text-muted:#00cccc; --color-border:#330033; }
-[data-theme="midnight"]   { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#5ce1e6; --color-accent-hover:#7fffd4; --color-text:#e0f7fa; --color-text-muted:#80deea; --color-border:#006064; }
-[data-theme="purplehaze"] { --color-primary-bg:#000000; --color-secondary-bg:#0a000a; --color-accent-main:#d946ef; --color-accent-hover:#e879f9; --color-text:#f5d0fe; --color-text-muted:#e9aef7; --color-border:#330033; }
-[data-theme="coffee"]     { --color-primary-bg:#000000; --color-secondary-bg:#0f0a05; --color-accent-main:#ff9f1c; --color-accent-hover:#ffb84d; --color-text:#f4e4d5; --color-text-muted:#d4a574; --color-border:#332211; }
-[data-theme="ocean"]      { --color-primary-bg:#000000; --color-secondary-bg:#000011; --color-accent-main:#38bdf8; --color-accent-hover:#0ea5e9; --color-text:#e0f2fe; --color-text-muted:#94a3b8; --color-border:#002233; }
+[data-theme="amoled"]     { --color-primary-bg:#000000; --color-secondary-bg:#110000; --color-accent-main:#ff2e63; --color-accent-hover:#ff477e; --color-text:#ffffff; --color-text-muted:#aaaaaa; --color-border:#000000; }
+[data-theme="matrix"]     { --color-primary-bg:#050a05; --color-secondary-bg:#0a140a; --color-accent-main:#00ff41; --color-accent-hover:#00ff80; --color-text:#00ff41; --color-text-muted:#00cc33; --color-border:#003300; }
+[data-theme="blood"]      { --color-primary-bg:#0a0000; --color-secondary-bg:#110000; --color-accent-main:#ff1744; --color-accent-hover:#ff4569; --color-text:#ff8a80; --color-text-muted:#ff5252; --color-border:#330000; }
+[data-theme="sunset"]     { --color-primary-bg:#0a0515; --color-secondary-bg:#0f0a1f; --color-accent-main:#ff6b6b; --color-accent-hover:#ff5252; --color-text:#ffeaa7; --color-text-muted:#fdcb6e; --color-border:#331133; }
+[data-theme="forest"]     { --color-primary-bg:#000a05; --color-secondary-bg:#001a0f; --color-accent-main:#00ff9d; --color-accent-hover:#00cc7a; --color-text:#b2ffd6; --color-text-muted:#66ffb3; --color-border:#003322; }
+[data-theme="cyberpunk"]  { --color-primary-bg:#0a000a; --color-secondary-bg:#0f000f; --color-accent-main:#ff00ff; --color-accent-hover:#ff44ff; --color-text:#00ffff; --color-text-muted:#00cccc; --color-border:#330033; }
+[data-theme="midnight"]   { --color-primary-bg:#05050a; --color-secondary-bg:#0a0a14; --color-accent-main:#5ce1e6; --color-accent-hover:#7fffd4; --color-text:#e0f7fa; --color-text-muted:#80deea; --color-border:#006064; }
+[data-theme="purplehaze"] { --color-primary-bg:#050005; --color-secondary-bg:#0a000a; --color-accent-main:#d946ef; --color-accent-hover:#e879f9; --color-text:#f5d0fe; --color-text-muted:#e9aef7; --color-border:#330033; }
+[data-theme="coffee"]     { --color-primary-bg:#0a0500; --color-secondary-bg:#0f0a05; --color-accent-main:#ff9f1c; --color-accent-hover:#ffb84d; --color-text:#f4e4d5; --color-text-muted:#d4a574; --color-border:#332211; }
+[data-theme="ocean"]      { --color-primary-bg:#00000a; --color-secondary-bg:#000011; --color-accent-main:#38bdf8; --color-accent-hover:#0ea5e9; --color-text:#e0f2fe; --color-text-muted:#94a3b8; --color-border:#002233; }
 
 /* Hover = intense electric glow */
 [data-theme="midnight"] .game-box:hover,
@@ -347,7 +347,7 @@ body { background: var(--color-primary-bg) !important; }
     --color-secondary-bg: rgba(10, 10, 40, 0.7);
     --color-accent-main: #ef4444;
     --color-accent-hover: #dc2626;
-    --color-text: #fefce8;
+    --color-text: #fefce8
     !important;
     --color-border: #22c55e;
 }
@@ -653,3 +653,46 @@ body::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
+
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 10;
+}
+.game-box:hover .favorite-btn { opacity: 1; }
+.favorite-btn i { font-size: 14px; color: #fff; }
+.favorite-btn.favorited i { color: #ff006e; }
+.favorite-btn.favorited::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,0,110,0.2);
+    border-radius: 50%;
+}
+#game-view button {
+    position: absolute;
+    top: 16px;
+    z-index: 10;
+    background: rgba(31, 41, 55, 0.9);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#newtab-btn-game       { left: 16px; }
+#fullscreen-btn-game   { right: 16px; }
+#game-view button:hover { background: rgba(0, 0, 0, 0.95); transform: scale(1.1); }
