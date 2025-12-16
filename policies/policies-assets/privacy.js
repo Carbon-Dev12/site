@@ -16,7 +16,7 @@ function addPrintButton() {
     document.body.appendChild(btn);
 }
 addPrintButton();
-// VISIBLE PURPLE RAIN — 100% works
+
 const rainContainer = document.createElement('div');
 rainContainer.className = 'rain-container';
 document.body.appendChild(rainContainer);
@@ -30,7 +30,7 @@ function createDrop() {
     rainContainer.appendChild(drop);
     setTimeout(() => drop.remove(), 5000);
 }
-setInterval(createDrop, 80);
+setInterval(createDrop, 500);
 
 // Print button
 const btn = document.createElement('button');

@@ -8,7 +8,8 @@ window.addEventListener('load', () => {
         'game': document.getElementById('game-view'),
         'settings': document.getElementById('settings-view'),
         'favorites': document.getElementById('favorites-view'),
-        'recent': document.getElementById('recent-view')
+        'recent': document.getElementById('recent-view'),
+        'extras': document.getElementById('extras-view')
     };
 
     const navButtons = document.querySelectorAll('.nav-button');
@@ -426,6 +427,23 @@ window.addEventListener('load', () => {
         panicOptions.classList.toggle('hidden', !panicToggle.checked);
         panicKeyInput.value = localStorage.getItem('panicKey') || '';
         panicUrl.value = localStorage.getItem('panicUrl') || 'https://docs.google.com';
+            performanceToggle?.addEventListener('change', () => {
+        const enabled = performanceToggle.checked;
+        localStorage.setItem('performanceMode', enabled);
+
+        // Apply performance tweaks
+        if (enabled) {
+            // Low-end mode: reduce particles + disable heavy stuff
+            toggleParticles(false); // Turn off particles completely
+            document.body.classList.add('perf-mode');
+        } else {
+            // Normal mode: restore particles if they were enabled before
+            const particlesWereOn = localStorage.getItem('particlesEnabled') !== 'false';
+            const count = +localStorage.getItem('particleCount') || 50;
+            if (particlesWereOn) toggleParticles(true, count);
+            document.body.classList.remove('perf-mode');
+        }
+    });
 
         applyCloaking();
     };
@@ -870,3 +888,63 @@ window.showView = (name) => {
     }
 };
 });
+// ========================
+// FPS COUNTER (Now toggleable in Settings)
+// ========================
+const fpsCounter = document.getElementById('fps-counter');
+const fpsValue = document.getElementById('fps-value');
+const fpsToggle = document.getElementById('fps-counter-toggle');
+
+if (fpsCounter && fpsValue && fpsToggle) {
+    let frames = 0;
+    let lastTime = performance.now();
+    let rafId = null;
+
+    const updateFPS = (timestamp) => {
+        frames++;
+        if (timestamp - lastTime >= 1000) {
+            const fps = Math.round(frames * 1000 / (timestamp - lastTime));
+            fpsValue.textContent = fps;
+
+            // Color coding
+            fpsValue.style.color = fps >= 55 ? '#4ade80' : (fps >= 30 ? '#fbbf24' : '#ef4444');
+
+            frames = 0;
+            lastTime = timestamp;
+        }
+        rafId = requestAnimationFrame(updateFPS);
+    };
+
+    const toggleFPSCounter = (enabled) => {
+        if (enabled) {
+            fpsCounter.style.display = 'block';
+            if (!rafId) {
+                rafId = requestAnimationFrame(updateFPS);
+            }
+        } else {
+            fpsCounter.style.display = 'none';
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        }
+        localStorage.setItem('fpsCounterEnabled', enabled);
+    };
+
+    // Load saved setting (default: true)
+    const savedFpsSetting = localStorage.getItem('fpsCounterEnabled');
+    const isEnabled = savedFpsSetting !== null ? savedFpsSetting === 'true' : true;
+
+    fpsToggle.checked = isEnabled;
+    toggleFPSCounter(isEnabled);
+
+    // Listen for toggle changes
+    fpsToggle.addEventListener('change', () => {
+        toggleFPSCounter(fpsToggle.checked);
+    });
+
+    // Clean up on unload
+    window.addEventListener('beforeunload', () => {
+        if (rafId) cancelAnimationFrame(rafId);
+    });
+}

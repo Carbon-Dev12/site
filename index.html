@@ -39,8 +39,8 @@
                         <button class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200" data-view="games">Games</button>
                         <button class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200" data-view="favorites">Favorites</button>
                         <button class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200" data-view="recent">Recent</button>
+                        <button class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200" data-view="extras">Extras</button>
                         <button class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200" data-view="settings">Settings</button>
-                        <a href="https://studythemes.com/policies/privacy-policy.html" class="nav-button font-medium px-6 py-2 rounded-lg transition-all duration-200">Privacy Policy</a>
                     </div>
                 </div>
             </div>
@@ -56,6 +56,23 @@
                 <div class="quote-container mt-8 text-center">
                     <blockquote id="dynamic-quote" class="dynamic-text"></blockquote>
                     <p id="dynamic-source" class="dynamic-source mt-2"></p>
+                        <p>Credits to Swapnspit, Marki, and Petezah for helping.</p>
+                    <!-- Social Media Buttons Tray - Below Play Games -->
+                <div class="social-media-tray" style="margin-top: 2rem; display: flex; justify-content: center; gap: 16px;">
+                <!-- GitHub Button -->
+                    <a href="https://github.com/iisilly1059/site" target="_blank" class="social-media-icon-container shiny-btn" title="GitHub Repo">
+                <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 16 16" fill="#ffffff">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+                </svg>
+                    </a>
+
+    <!-- Discord Button -->
+                <a href="https://discord.gg/YSdyfAfmvZ" target="_blank" class="social-media-icon-container shiny-btn" title="Join Discord">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 640 512">
+                <path d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.924.91c-8.713,15.568-18.237,35.417-27.066,55.585A453.372,453.372,0,0,0,256,98.544a452.7,452.7,0,0,0-119.09-10.019c-8.829-20.168-18.353-40.017-27.066-55.585A1.816,1.816,0,0,0,107.919,32.03,487.6,487.6,0,0,0,88.233,69.836a1.5,1.5,0,0,0-.764.7C39.33,183.766,21.8,294.9,28.383,404.4a1.986,1.986,0,0,0,.791,1.422A490.456,490.456,0,0,0,176,479.9a1.916,1.916,0,0,0,2.063-.676A348.2,348.2,0,0,0,212.6,428.588a1.9,1.9,0,0,0-.994-2.652l-5.573-2.631a1.9,1.9,0,0,1-.941-1.5c.094-.5.262-1.008.507-1.5,34.582,16.1,71.2,25.3,109.4,25.3s74.818-9.2,109.4-25.3c.245.492.413,1,.507,1.5a1.9,1.9,0,0,1-.941,1.5l-5.573,2.631a1.9,1.9,0,0,0-.994,2.652A348.2,348.2,0,0,0,459.9,479.224a1.916,1.916,0,0,0,2.063.676A490.456,490.456,0,0,0,608.827,405.822a1.986,1.986,0,0,0,.791-1.422C616.2,294.9,598.67,183.766,524.531,69.836Z" fill="#ffffff"/>
+                    </svg>
+                </a>
+                </div>
                 </div>
             </div>
             <div class="home-right">
@@ -917,6 +934,12 @@
         </div>
 
         <div id="game-view" class="view hidden-view">
+            <div id="fps-counter" style="position: fixed; top: 10px; right: 10px; z-index: 9999; 
+            background: rgba(0,0,0,0.6); color: #8b5cf6; padding: 8px 12px; border-radius: 8px; 
+            font-family: 'Courier New', monospace; font-size: 14px; pointer-events: none; 
+            backdrop-filter: blur(4px); border: 1px solid rgba(139,92,246,0.3); display: none;">
+            FPS: <span id="fps-value">60</span>
+        </div>
             <div id="game-loader" class="active">
                 <div class="spinner"></div>
                 <p class="main-message">Loading your selected game.</p>
@@ -940,6 +963,27 @@
                 </div>
             <div id="recent-wrapper" class="mx-auto space-y-4"></div>
         </div>
+
+        <div id="extras-view" class="view hidden-view flex flex-col items-center justify-start min-h-[calc(100vh-64px)] px-4 md:px-8 overflow-y-auto pt-12">
+    <div class="max-w-5xl w-full mx-auto">
+            <div class="max-w-5xl mx-auto px-4">
+                <h1 class="text-4xl md:text-5xl font-bold text-center mb-12 gradient-word">Extras</h1>
+                <div class="five-box-row mb-8">
+                    <div class="game-box" data-url="iframe.html?url=https://studythemes.com/policies/privacy-policy.html" data-title="Privacy Policy">
+                        <i class="fas fa-lock text-6xl mb-4 text-purple-400"></i>
+                        <h3 class="text-2xl font-bold mb-4">Privacy Policy</h3>
+                        <p class="text-gray-300">View our privacy policy.</p>
+                    </div>
+
+                    <div class="game-box" data-url="iframe.html?url=https://docs.google.com/forms/d/e/1FAIpQLSdO5jGj9Tf7sZSCTLkDKx7MmUvIvH_Ic2LTBbVC4YiMp6Qs5Q/viewform" data-title="suggest a game">
+                        <i class="fas fa-comment-dots text-6xl mb-4 text-purple-400"></i>
+                        <h3 class="text-2xl font-bold mb-4">Suggest a Game</h3>
+                        <p class="text-gray-300">Request new games!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
         <div id="settings-view" class="view hidden-view p-4 md:p-6 max-w-5xl mx-auto">
             <h1 class="text-4xl md:text-5xl font-bold text-center mb-8 md:mb-12 gradient-word">Settings</h1>
@@ -1013,6 +1057,16 @@
                             <option value="3000">3 seconds</option>
                             <option value="5000">5 seconds</option>
                         </select>
+                    </div>
+                        <div class="setting-item mt-6">
+                        <label class="flex items-center justify-between">
+                            <span class="font-semibold text-lg">Show FPS Counter (appears in top right corner when playing a game)</span>
+                                <label class="toggle">
+                                    <input type="checkbox" id="fps-counter-toggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
