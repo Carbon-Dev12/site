@@ -2,7 +2,6 @@
 html, body, .content, #game-view, #game-iframe {
     height: 100% !important; margin: 0 !important; padding: 0 !important;
 }
-/* BEST SMOOTH THEME SWITCHING */
 html {
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -14,7 +13,6 @@ html {
                 border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* --- Default Color Variables --- */
 :root {
     --color-primary-bg: #1a1a2e;
     --color-secondary-bg: #1f2937;
@@ -31,10 +29,6 @@ body {
 }
 .content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: visible; }
 html, body { background: #0b1120 !important; }   /* ← THIS IS THE KEY LINE */
-
-/* ------------------------------------------------------------------------ */
-/* --- PURE-CSS RIPPLE CLICK EFFECT --- */
-/* ------------------------------------------------------------------------ */
 .game-box,
 .play-btn,
 .about-blank-btn,
@@ -69,10 +63,6 @@ html, body { background: #0b1120 !important; }   /* ← THIS IS THE KEY LINE */
     width: 300px;
     height: 300px;
 }
-
-/* ------------------------------------------------------------------------ */
-/* --- GRADIENT TEXT – HOMEPAGE --- */
-/* ------------------------------------------------------------------------ */
 .gradient-word {
     background: linear-gradient(to right, #007bff, #ff00ff);
     -webkit-background-clip: text;
@@ -98,53 +88,101 @@ html, body { background: #0b1120 !important; }   /* ← THIS IS THE KEY LINE */
     from, to { border-color: transparent }
     50% { border-color: orange; }
 }
-
-/* ------------------------------------------------------------------------ */
-/* --- GAMES GRID & BOXES --- */
-/* ------------------------------------------------------------------------ */
 #game-box-wrapper {
-    padding: 1rem; margin: 0.5rem; box-sizing: border-box; max-width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 20px !important;
+    padding: 1.5rem !important;
+    max-width: 1600px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box;
 }
-.five-box-row {
-    display: flex; flex-wrap: wrap; width: 100%; gap: 16px; align-items: center; justify-content: center;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: rowFadeIn 0.7s ease-out forwards;
+@media (max-width: 1400px) {
+    #game-box-wrapper {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
 }
-@keyframes rowFadeIn {
-    to { opacity: 1; transform: translateY(0); }
+@media (max-width: 1200px) {
+    #game-box-wrapper {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+}
+@media (max-width: 900px) {
+    #game-box-wrapper {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+@media (max-width: 640px) {
+    #game-box-wrapper {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+@media (max-width: 480px) {
+    #game-box-wrapper {
+        grid-template-columns: 1fr !important;
+    }
 }
 .game-box {
-    flex: 1 1 200px; max-width: 220px; height: 192px; background-color: var(--color-secondary-bg);
-    border: 2px solid var(--color-accent-main); border-radius: 12px; display: flex;
-    flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
-    position: relative; transition: transform 0.3s, box-shadow 0.3s;
+    width: 100%;
+    height: 220px;
+    background-color: var(--color-secondary-bg);
+    border: 2px solid var(--color-accent-main);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    will-change: transform, box-shadow;
-}
-.game-box:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    border-color: var(--color-text);
-}
-.game-box:active { transform: translateY(-2px) scale(0.99); }
-.game-box:focus-visible { outline: 3px solid var(--color-accent-main); outline-offset: 4px; }
-.game-box img { max-width: 90%; max-height: 68%; object-fit: contain; border-radius: 8px; }
-.game-title {
-    font-size: 0.95rem; font-weight: bold; text-align: center; margin-top: 8px; color: var(--color-text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%;
-}
-@media (max-width: 768px) {
-    #game-box-wrapper { margin: 0.5rem; padding: 0.75rem; }
-    .five-box-row { flex-direction: column; gap: 8px; }
-    .game-box { height: 110px; flex-direction: row; padding: 12px 8px; max-width: 100%; }
-    .game-box img { max-height: 60%; max-width: 50%; object-fit: cover; }
-    .game-title { font-size: 0.9rem; margin-left: 12px; line-height: 1.2; }
+    transition: all 0.3s ease;
 }
 
-/* ------------------------------------------------------------------------ */
-/* --- UTILITIES & GAME VIEW --- */
-/* ------------------------------------------------------------------------ */
+.game-box:hover {
+    transform: translateY(-8px) scale(1.03) !important;
+    border-color: #c4b5fd !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(139, 92, 246, 0.3) !important;
+}
+
+.game-box img {
+    max-width: 90%;
+    max-height: 68%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.game-title {
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 8px;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 90%;
+}
+@media (max-width: 768px) {
+    .game-box {
+        height: 120px;
+        flex-direction: row;
+        padding: 12px;
+    }
+    .game-box img {
+        max-width: 50%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+    .game-title {
+        font-size: 0.9rem;
+        margin-left: 12px;
+        text-align: left;
+        width: auto;
+    }
+}
+.five-box-row,
+@keyframes rowFadeIn {
+    display: none !important;
+}
 .hidden-view { display: none !important; }
 .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .theme-option {
@@ -170,10 +208,6 @@ html, body { background: #0b1120 !important; }   /* ← THIS IS THE KEY LINE */
     will-change: transform, box-shadow;
 }
 #fullscreen-btn-game:hover { background-color: var(--color-accent-hover); transform: scale(1.1); }
-
-/* ------------------------------------------------------------------------ */
-/* --- SETTINGS & CONTROLS --- */
-/* ------------------------------------------------------------------------ */
 .setting-item {
     background: rgba(30, 30, 50, 0.4) !important;
     backdrop-filter: blur(10px);
@@ -193,10 +227,6 @@ input:checked + .slider:before { transform: translateX(24px); }
 .panic-input { width: 100%; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: 8px; background-color: var(--color-secondary-bg); color: var(--color-text); }
 .save-btn { background-color: var(--color-accent-main); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; }
 .save-btn:hover { background-color: var(--color-accent-hover); }
-
-/* ------------------------------------------------------------------------ */
-/* --- HOME PAGE & CTA BUTTONS --- */
-/* ------------------------------------------------------------------------ */
 #particle-canvas {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 1; opacity: 0.6;
@@ -258,7 +288,6 @@ input:checked + .slider:before { transform: translateX(24px); }
     transform: scale(1.02);
 }
 .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--color-accent-main); font-size: 1.1rem; }
-/* ADD THIS ONE LINE AT THE VERY TOP OF YOUR CSS (right after the global reset) */
 body { background: var(--color-primary-bg) !important; }
 .game-box,
 .setting-item,
@@ -287,10 +316,6 @@ body { background: var(--color-primary-bg) !important; }
 .game-box {
     transition: opacity 0.4s ease, transform 0.4s ease;
 }
-
-/* ------------------------------------------------------------------------ */
-/* --- THEMES --- */
-/* ------------------------------------------------------------------------ */
 [data-theme="dark"]       { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#8b5cf6; --color-accent-hover:#a78bfa; --color-text:#e0e7ff; --color-text-muted:#94a3b8; --color-border:#1e293b; }
 [data-theme="light"]      { --color-primary-bg:#fafafa; --color-secondary-bg:#ffffff; --color-accent-main:#6366f1; --color-accent-hover:#4f46e5; --color-text:#0f172a; --color-text-muted:#64748b; --color-border:#e2e8f0; }
 [data-theme="amoled"]     { --color-primary-bg:#000000; --color-secondary-bg:#110000; --color-accent-main:#ff2e63; --color-accent-hover:#ff477e; --color-text:#ffffff; --color-text-muted:#aaaaaa; --color-border:#000000; }
@@ -303,8 +328,6 @@ body { background: var(--color-primary-bg) !important; }
 [data-theme="purplehaze"] { --color-primary-bg:#050005; --color-secondary-bg:#0a000a; --color-accent-main:#d946ef; --color-accent-hover:#e879f9; --color-text:#f5d0fe; --color-text-muted:#e9aef7; --color-border:#330033; }
 [data-theme="coffee"]     { --color-primary-bg:#0a0500; --color-secondary-bg:#0f0a05; --color-accent-main:#ff9f1c; --color-accent-hover:#ffb84d; --color-text:#f4e4d5; --color-text-muted:#d4a574; --color-border:#332211; }
 [data-theme="ocean"]      { --color-primary-bg:#00000a; --color-secondary-bg:#000011; --color-accent-main:#38bdf8; --color-accent-hover:#0ea5e9; --color-text:#e0f2fe; --color-text-muted:#94a3b8; --color-border:#002233; }
-
-/* Hover = intense electric glow */
 [data-theme="midnight"] .game-box:hover,
 [data-theme="midnight"] .setting-item:hover,
 [data-theme="midnight"] .theme-option:hover {
@@ -314,8 +337,6 @@ body { background: var(--color-primary-bg) !important; }
         0 0 50px rgba(139, 92, 246, 0.6) !important;
     transform: translateY(-10px) scale(1.03) !important;
 }
-
-/* Buttons = glowing purple orbs */
 [data-theme="midnight"] .play-btn,
 [data-theme="midnight"] #fullscreen-btn-game,
 [data-theme="midnight"] .save-btn,
@@ -664,7 +685,6 @@ body::-webkit-scrollbar {
     color: white;
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
 }
-/* SETTINGS TABS - HIDE INACTIVE PANELS */
 #settings-view .tab-panel {
     display: none;
     opacity: 0;
@@ -675,8 +695,6 @@ body::-webkit-scrollbar {
     display: block;
     opacity: 1;
 }
-
-/* Optional: nice underline indicator for active tab */
 #settings-view .tab-button.active {
     position: relative;
 }
@@ -709,7 +727,6 @@ body::-webkit-scrollbar {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
     transform: translateY(-2px);
 }
-/* Improved responsive tabs */
 .tabs-container {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -717,8 +734,6 @@ body::-webkit-scrollbar {
 .tabs-container::-webkit-scrollbar {
     display: none;
 }
-
-/* Better active tab style */
 .tab-button {
     background: rgba(255, 255, 255, 0.05);
     color: #e0e7ff;
@@ -747,8 +762,6 @@ body::-webkit-scrollbar {
     background: linear-gradient(to right, #8b5cf6, #ec4899);
     border-radius: 2px 2px 0 0;
 }
-
-/* Smooth panel transitions */
 .tab-panel {
     display: none;
     opacity: 0;
@@ -759,11 +772,6 @@ body::-webkit-scrollbar {
     display: block;
     opacity: 1;
 }
-/* ========================================================================== */
-/* PREMIUM UI ENHANCEMENTS – Paste near the end of your CSS */
-/* ========================================================================== */
-
-/* Enhanced Glassmorphism Base (apply to cards, boxes, settings) */
 .game-box,
 .setting-item,
 .settings-category,
@@ -781,8 +789,6 @@ body::-webkit-scrollbar {
         0 0 20px rgba(139, 92, 246, 0.15) !important;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
-
-/* Hover States – Stronger Lift + Glow */
 .game-box:hover,
 .setting-item:hover,
 .settings-category:hover,
@@ -796,8 +802,6 @@ body::-webkit-scrollbar {
         0 0 40px rgba(139, 92, 246, 0.35),
         inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
-
-/* Primary Buttons – Elevated Glow */
 .play-btn,
 .save-btn,
 #fullscreen-btn-game,
@@ -820,15 +824,11 @@ body::-webkit-scrollbar {
         0 15px 40px rgba(139, 92, 246, 0.6),
         0 0 50px rgba(139, 92, 246, 0.5) !important;
 }
-
-/* Active/Pressed State */
 .play-btn:active,
 .save-btn:active,
 #fullscreen-btn-game:active {
     transform: translateY(1px) scale(0.98) !important;
 }
-
-/* Settings Tabs – More Premium */
 .tab-button {
     background: rgba(40, 40, 80, 0.3) !important;
     backdrop-filter: blur(10px);
@@ -865,8 +865,6 @@ body::-webkit-scrollbar {
     border-radius: 2px;
     box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
 }
-
-/* Search Bar Glow */
 #game-search {
     background: rgba(20, 20, 40, 0.6) !important;
     backdrop-filter: blur(12px);
@@ -880,15 +878,11 @@ body::-webkit-scrollbar {
         inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     border-color: #c4b5fd !important;
 }
-
-/* Headings – Subtle Glow */
 h1.gradient-word,
 .settings-category h2,
 .showcase-title {
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(139, 92, 246, 0.4);
 }
-
-/* Favorite Button – Softer Appear */
 .favorite-btn {
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
@@ -900,8 +894,6 @@ h1.gradient-word,
     border-color: #ff006e;
     box-shadow: 0 0 15px rgba(255, 0, 110, 0.4);
 }
-
-/* Scrollbar – Even Sleeker */
 #games-view::-webkit-scrollbar-thumb,
 #settings-view::-webkit-scrollbar-thumb {
     background: linear-gradient(to bottom, #8b5cf6, #c026d3);
@@ -914,11 +906,6 @@ h1.gradient-word,
 #settings-view::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to bottom, #a78bfa, #ec4899);
 }
-/* ========================================================================== */
-/* INSTANT INTERACTIVE UPGRADES – Paste at the very bottom of style.css */
-/* ========================================================================== */
-
-/* Game boxes pop & bounce when you hover/tap */
 .game-box {
     cursor: pointer;
     transform: perspective(1000px) translateZ(0);
@@ -931,8 +918,6 @@ h1.gradient-word,
 .game-box:active {
     transform: perspective(1000px) translateZ(10px) scale(1.02) !important;
 }
-
-/* Buttons feel clicky with satisfying bounce */
 .play-btn, .about-blank-btn, .save-btn, #fullscreen-btn-game, .theme-option, .tab-button {
     cursor: pointer;
     transform: translateY(0) scale(1);
@@ -947,14 +932,10 @@ h1.gradient-word,
     transform: translateY(2px) scale(0.98) !important;
     transition: transform 0.1s ease;
 }
-
-/* Search bar instant glow + tiny bounce on focus */
 #game-search:focus {
     transform: scale(1.05) !important;
     transition: all 0.3s ease;
 }
-
-/* Favorite button slides in smoother & heart beats when favorited */
 .favorite-btn {
     opacity: 0;
     transform: translateY(10px);
@@ -971,8 +952,6 @@ h1.gradient-word,
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.3); }
 }
-
-/* Settings toggles feel premium */
 .toggle input:checked + .slider {
     transform: scale(1.05);
     transition: all 0.3s ease;
@@ -980,46 +959,15 @@ h1.gradient-word,
 .slider:before {
     transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
-
-/* Showcase game on home page bounces when you hover */
 .showcase-game:hover {
     transform: translateY(-12px) scale(1.07) !important;
     transition: transform 0.4s ease;
 }
-
-/* Make scrollbar thumb pulse slightly when you hover over the page */
 #games-view:hover::-webkit-scrollbar-thumb,
 #settings-view:hover::-webkit-scrollbar-thumb {
     background: linear-gradient(to bottom, #c026d3, #8b5cf6) !important;
     box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
 }
-
-/* Tiny sparkle on all clickable things (super subtle) */
-.game-box::before, .play-btn::before, .theme-option::before, .tab-button::before {
-    content: "";
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 0; height: 0;
-    background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    pointer-events: none;
-}
-.game-box:active::before, .play-btn:active::before, 
-.theme-option:active::before, .tab-button:active::before {
-    width: 200px; height: 200px;
-    opacity: 1;
-    animation: sparkle 0.6s ease-out forwards;
-}
-@keyframes sparkle {
-    to { width: 0; height: 0; opacity: 0; }
-}
-/* ========================================================================== */
-/* EVEN MORE INTERACTIVE GOODNESS – Paste at the very end */
-/* ========================================================================== */
-
-/* Subtle breathing glow on the main Play button (home page) */
 .play-btn {
     animation: breathe-glow 6s infinite ease-in-out;
 }
@@ -1027,8 +975,6 @@ h1.gradient-word,
     0%, 100% { box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), 0 0 30px rgba(139, 92, 246, 0.3); }
     50%      { box-shadow: 0 12px 35px rgba(139, 92, 246, 0.6), 0 0 50px rgba(139, 92, 246, 0.5); }
 }
-
-/* Active theme option pulses gently */
 .theme-option.active {
     animation: theme-pulse 4s infinite ease-in-out;
 }
@@ -1036,29 +982,11 @@ h1.gradient-word,
     0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6); }
     50%      { box-shadow: 0 0 30px rgba(139, 92, 246, 0.9); }
 }
-
-/* Game boxes get a very subtle floating animation when idle */
-.game-box {
-    animation: float 8s infinite ease-in-out;
-}
-@keyframes float {
-    0%, 100% { transform: translateY(0) translateZ(0); }
-    50%      { transform: translateY(-6px) translateZ(10px); }
-}
-
-/* Hover override to stop float and do the big lift instead */
-.game-box:hover {
-    animation: none !important;
-}
-
-/* Fullscreen button spins a tiny bit on hover */
 #fullscreen-btn-game:hover {
     transform: scale(1.15) rotate(90deg) !important;
     transition: transform 0.4s ease;
 }
-
-/* Back button in game view (if you have one) slides in from left */
-#game-view button:first-child {  /* assuming back/newtab is first */
+#game-view button:first-child {
     transform: translateX(-20px);
     opacity: 0;
     animation: slideInLeft 0.8s 0.3s ease-out forwards;
@@ -1066,8 +994,6 @@ h1.gradient-word,
 @keyframes slideInLeft {
     to { transform: translateX(0); opacity: 1; }
 }
-
-/* Tiny confetti-like particles on game box click (very subtle) */
 .game-box::after {
     content: "";
     position: absolute;
@@ -1086,8 +1012,6 @@ h1.gradient-word,
 @keyframes confetti-burst {
     to { opacity: 0; transform: scale(2.5); }
 }
-
-/* Search icon bounces when you focus the search bar */
 #game-search:focus + .search-icon {
     animation: icon-bounce 0.6s ease;
 }
@@ -1095,13 +1019,10 @@ h1.gradient-word,
     0%, 100% { transform: translateY(-50%) scale(1); }
     50%      { transform: translateY(-60%) scale(1.2); }
 }
-
-/* Favorited games get a soft golden border glow */
-.game-box.favorited {  /* add .favorited class via JS when starred */
+.game-box.favorited {
     border-color: #ff006e !important;
     box-shadow: 0 0 25px rgba(255, 0, 110, 0.4) !important;
 }
-/* ======================== FPS COUNTER STYLING ======================== */
 #fps-counter {
     position: fixed !important;
     top: 12px !important;
@@ -1122,24 +1043,20 @@ h1.gradient-word,
         0 0 20px rgba(139, 92, 246, 0.2) !important;
     pointer-events: none !important;
     transition: all 0.3s ease !important;
-    display: none; /* Will be shown by JS when in game */
+    display: none;
 }
 
 #fps-value {
     font-weight: 900 !important;
     transition: color 0.4s ease !important;
 }
-
-/* Optional: Make it pulse when FPS is bad */
 #fps-counter.blink {
     animation: fps-blink 0.8s infinite !important;
 }
 @keyframes fps-blink {
     50% { opacity: 0.4; transform: scale(0.95); }
 }
-/* Performance Mode: Tone down heavy effects */
 body.perf-mode {
-    /* Disable heavy blurs/shadows */
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 }
@@ -1194,7 +1111,6 @@ body.perf-mode .game-box:hover {
 .social-media-icon-container:hover svg {
     filter: drop-shadow(0 0 16px rgba(139, 92, 246, 0.8));
 }
-/* Top Played Section */
 .top-played {
     text-align: center;
     padding: 3rem 1rem;
@@ -1204,8 +1120,6 @@ body.perf-mode .game-box:hover {
 .top-played h2 {
     margin-bottom: 1.5rem;
 }
-
-/* Footer */
 .site-footer {
     text-align: center;
     padding: 2rem 1rem;
@@ -1223,7 +1137,6 @@ body.perf-mode .game-box:hover {
     color: #c4b5fd;
 }
 
-/* Mini-preview on hover (the 3 you wanted) */
 .game-box:hover .mini-preview {
     opacity: 1;
     transform: translateY(0);
@@ -1248,4 +1161,221 @@ body.perf-mode .game-box:hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+    #sidebar {
+        width: 60px !important;
+        min-width: 60px !important;
+    }
+
+    #sidebar .p-6 {
+        padding: 1rem !important;
+    }
+    .sidebar-btn span:not(i) {
+        display: none !important;
+    }
+
+    .sidebar-btn {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 60px !important;
+        padding: 0 !important;
+        text-align: center;
+        font-size: 0.8rem !important;
+    }
+    .sidebar-btn i {
+        font-size: 28px !important;
+        margin-right: 0 !important;
+        margin-bottom: 4px !important;
+    }
+    #sidebar h1 {
+        font-size: 1rem !important;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        margin: 0 auto;
+    }
+    #close-sidebar {
+        display: none !important;
+    }
+
+    #sidebar > div.absolute {
+        display: none !important;
+    }
+    @media (min-width: 1024px) {
+        .content > .flex > div:nth-child(2) {
+            margin-left: 60px;
+        }
+    }
+#home-page-view .fixed.bottom-20 {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+.view:not(#home-page-view) #home-about-blank-btn,
+#game-view #home-about-blank-btn {
+    display: none !important;
+}
+
+#home-about-blank-btn {
+    box-shadow: 0 10px 30px rgba(168, 85, 247, 0.5);
+}
+@media (max-width: 1023px) {
+    #home-about-blank-btn {
+        bottom: 16px;
+        padding: 12px 24px !important;
+        font-size: 1rem !important;
+    }
+}
+.sidebar-btn,
+.nav-button,
+#sidebar button {
+    background: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+    outline: none !important;
+    cursor: pointer;
+}
+
+.sidebar-btn:hover,
+.sidebar-btn:active,
+.sidebar-btn:focus,
+.nav-button:hover,
+.nav-button:active,
+.nav-button:focus,
+#sidebar button:hover,
+#sidebar button:active,
+#sidebar button:focus {
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    transform: none !important;
+    outline: none !important;
+}
+.sidebar-btn::before,
+.sidebar-btn::after,
+.nav-button::before,
+.nav-button::after {
+    display: none !important;
+}
+#sidebar {
+    width: 80px !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar nav ul {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.sidebar-btn {
+    background: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transform: none !important;
+    transition: none !important;
+    padding: 0 !important;
+}
+.sidebar-btn:hover,
+.sidebar-btn:active,
+.sidebar-btn:focus {
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    transform: none !important;
+    outline: none !important;
+}
+.sidebar-btn.active {
+    color: #8b5cf6 !important;
+}
+
+.sidebar-btn span {
+    font-size: 0.65rem;
+}
+#sidebar {
+    width: 80px !important;
+}
+.sidebar-btn {
+    background: transparent !important;
+    color: inherit !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transform: none !important;
+    transition: none !important;
+    cursor: pointer;
+}
+
+.sidebar-btn:hover,
+.sidebar-btn:active,
+.sidebar-btn:focus {
+    background: transparent !important;
+    color: inherit !important;
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.sidebar-btn.active {
+    color: #8b5cf6 !important;
+    background: rgba(139, 92, 246, 0.2) !important;
+    border-radius: 12px;
+}
+
+.sidebar-btn::before,
+.sidebar-btn::after {
+    display: none !important;
+}
+#sidebar {
+    width: 80px !important;
+}
+
+.sidebar-btn,
+.nav-button {
+    background: transparent !important;
+    color: var(--color-text) !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+
+.sidebar-btn:hover,
+.sidebar-btn:active,
+.sidebar-btn:focus,
+.nav-button:hover,
+.nav-button:active,
+.nav-button:focus {
+    background: transparent !important;
+    color: inherit !important;
+    transform: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.sidebar-btn.active,
+.nav-button.active {
+    color: #8b5cf6 !important;
+    background: rgba(139, 92, 246, 0.15) !important;
+    border-radius: 12px;
+}
+
+.sidebar-btn::before,
+.sidebar-btn::after,
+.nav-button::before,
+.nav-button::after {
+    display: none !important;
+}
+.sidebar-btn.active {
+    color: #c4b5fd !important;
+    background: rgba(139, 92, 246, 0.25) !important;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }

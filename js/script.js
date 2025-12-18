@@ -1,7 +1,4 @@
 window.addEventListener('load', () => {
-    // ========================
-    // DOM ELEMENTS
-    // ========================
     const views = {
         'home-page': document.getElementById('home-page-view'),
         'games': document.getElementById('games-view'),
@@ -29,7 +26,6 @@ window.addEventListener('load', () => {
     const themeOptions = document.querySelectorAll('.theme-option');
     const body = document.body;
 
-    // Additional settings elements
     const panicToggle = document.getElementById('panic-toggle');
     const panicOptions = document.getElementById('panic-options');
     const panicKeyInput = document.getElementById('panic-key-input');
@@ -39,8 +35,6 @@ window.addEventListener('load', () => {
     const siteTitleInput = document.getElementById('site-title-input');
     const siteLogoInput = document.getElementById('site-logo-input');
     const currentLogo = document.getElementById('current-logo');
-
-    // Import/Export/Reset
     const exportSettingsBtn = document.getElementById('export-settings-btn');
     const importSettingsInput = document.getElementById('import-settings-input');
     const importStatus = document.getElementById('import-status');
@@ -49,11 +43,7 @@ window.addEventListener('load', () => {
     const homeAboutBlankBtn = document.getElementById('home-about-blank-btn');
     const openAboutBlankBtn = document.getElementById('open-about-blank-btn');
 
-    let hasAboutBlankRun = false; // Prevents double-triggering
-
-    // ========================
-    // FIXED ABOUT:BLANK CLOAKER (NOW WITH PROPER LOGIC)
-    // ========================
+    let hasAboutBlankRun = false;
     const openInAboutBlank = (sourceUrl) => {
         if (hasAboutBlankRun) {
             return;
@@ -124,10 +114,6 @@ window.addEventListener('load', () => {
             openInAboutBlank(urlToCloak);
         });
     }
-
-    // ========================
-    // TYPEWRITER EFFECT
-    // ========================
     const words = ['freedom.', 'beauty.', 'peace.', 'amazement.'];
     let wordIndex = 0;
     let charIndex = 0;
@@ -156,15 +142,10 @@ window.addEventListener('load', () => {
         setTimeout(type, typeSpeed);
     };
     type();
-
-    // ========================
-    // SHOWCASE CAROUSEL
-    // ========================
     let currentShowcaseIndex = 0;
-    let showcaseInterval; // ← THIS WAS THE MISSING LINE! NOW ADDED
+    let showcaseInterval;
 
     const updateShowcase = () => {
-        // Skip over any placeholder games
         let box;
         let attempts = 0;
         do {
@@ -186,10 +167,6 @@ window.addEventListener('load', () => {
         updateShowcase();
         showcaseInterval = setInterval(updateShowcase, parseInt(showcaseSpeed.value));
     };
-
-    // ========================
-    // PARTICLES CANVAS
-    // ========================
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -266,10 +243,6 @@ window.addEventListener('load', () => {
             particles = [];
         }
     };
-
-    // ========================
-    // THEME HANDLING
-    // ========================
     const applyTheme = (theme) => {
         body.setAttribute('data-theme', theme);
         localStorage.setItem('selectedTheme', theme);
@@ -281,10 +254,6 @@ window.addEventListener('load', () => {
             applyTheme(option.dataset.theme);
         });
     });
-
-    // ========================
-    // CLOAKING HANDLING
-    // ========================
     const applyCloaking = () => {
         const title = localStorage.getItem('cloakTitle') || document.title;
         document.title = title;
@@ -330,10 +299,6 @@ window.addEventListener('load', () => {
             reader.readAsDataURL(file);
         }
     });
-
-    // ========================
-    // PANIC KEY HANDLING
-    // ========================
     panicToggle.addEventListener('change', () => {
         panicOptions.classList.toggle('hidden', !panicToggle.checked);
         localStorage.setItem('panicEnabled', panicToggle.checked);
@@ -365,10 +330,6 @@ window.addEventListener('load', () => {
             setTimeout(() => panicStatus.classList.add('hidden'), 3000);
         }
     });
-
-    // ========================
-    // OTHER SETTINGS SAVE/LOAD
-    // ========================
     particlesToggle.addEventListener('change', () => {
         const enabled = particlesToggle.checked;
         const count = parseInt(particleDensity.value);
@@ -401,10 +362,6 @@ window.addEventListener('load', () => {
             gameIframe.contentWindow.postMessage({type: 'mute', value: gameVolumeToggle.checked}, '*');
         }
     });
-
-    // ========================
-    // LOAD ALL SAVED SETTINGS
-    // ========================
     const loadSettings = () => {
         const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
         applyTheme(savedTheme);
@@ -431,13 +388,10 @@ window.addEventListener('load', () => {
         const enabled = performanceToggle.checked;
         localStorage.setItem('performanceMode', enabled);
 
-        // Apply performance tweaks
         if (enabled) {
-            // Low-end mode: reduce particles + disable heavy stuff
-            toggleParticles(false); // Turn off particles completely
+            toggleParticles(false);
             document.body.classList.add('perf-mode');
         } else {
-            // Normal mode: restore particles if they were enabled before
             const particlesWereOn = localStorage.getItem('particlesEnabled') !== 'false';
             const count = +localStorage.getItem('particleCount') || 50;
             if (particlesWereOn) toggleParticles(true, count);
@@ -449,10 +403,6 @@ window.addEventListener('load', () => {
     };
 
     loadSettings();
-
-    // ========================
-    // VIEW SWITCHING
-    // ========================
     window.showView = (name) => {
         Object.values(views).forEach(v => v.classList.add('hidden-view'));
         views[name]?.classList.remove('hidden-view');
@@ -471,10 +421,6 @@ window.addEventListener('load', () => {
     };
 
     navButtons.forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
-
-    // ========================
-    // GAME LOADING
-    // ========================
     gameBoxes.forEach(box => {
         box.addEventListener('click', () => {
             const url = box.dataset.url;
@@ -500,10 +446,6 @@ window.addEventListener('load', () => {
     document.getElementById('newtab-btn-game')?.addEventListener('click', () => {
         if (gameIframe.src) window.open(gameIframe.src, '_blank');
     });
-
-    // ========================
-    // SEARCH FUNCTIONALITY
-    // ========================
     function setupSearch(searchInputId, containerSelector) {
         const searchInput = document.getElementById(searchInputId);
         if (!searchInput) return;
@@ -537,10 +479,6 @@ window.addEventListener('load', () => {
     setupSearch('game-search', '#game-box-wrapper');
     setupSearch('favorites-search', '#favorites-wrapper');
     setupSearch('recent-search', '#recent-wrapper');
-
-    // ========================
-    // TAB SWITCHING IN SETTINGS
-    // ========================
     document.querySelectorAll('#settings-view .tab-button').forEach(button => {
         button.addEventListener('click', () => {
             document.querySelectorAll('#settings-view .tab-button').forEach(b => b.classList.remove('active'));
@@ -550,10 +488,6 @@ window.addEventListener('load', () => {
             if (panel) panel.classList.add('active');
         });
     });
-
-    // ========================
-    // IMPORT / EXPORT / RESET
-    // ========================
     if (exportSettingsBtn) {
         exportSettingsBtn.addEventListener('click', () => {
             const data = {
@@ -607,9 +541,6 @@ window.addEventListener('load', () => {
         });
     }
 
-    // ========================
-    // CONSENT BANNER
-    // ========================
     const consentBanner = document.getElementById('consent-banner');
     const acceptAdsBtn = document.getElementById('accept-ads-btn');
     const rejectAdsBtn = document.getElementById('reject-ads-btn');
@@ -663,15 +594,8 @@ window.addEventListener('load', () => {
             hideConsentBanner();
         });
     }
-
-    // ========================
-    // INITIALIZE
-    // ========================
     showView('home-page');
     startShowcase();
-// ========================
-// FAVORITES & RECENTLY PLAYED SYSTEM (FULLY FIXED)
-// ========================
 
 const FAVORITES_KEY = 'favoriteGames';
 const RECENT_KEY = 'recentGames';
@@ -693,20 +617,16 @@ const toggleFavorite = (gameBox) => {
     const heartIcon = gameBox.querySelector('.favorite-btn i');
 
     if (index > -1) {
-        // Remove from favorites
         favorites.splice(index, 1);
         heartIcon?.classList.replace('fas', 'far');
     } else {
-        // Add to favorites
         favorites.push({ url, title, img });
         heartIcon?.classList.replace('far', 'fas');
     }
 
     saveFavorites(favorites);
-    renderFavorites();  // Update favorites tab
+    renderFavorites();
 };
-
-// Create a reusable game box element
 const createGameBox = (game) => {
     const box = document.createElement('div');
     box.className = 'game-box';
@@ -719,10 +639,8 @@ const createGameBox = (game) => {
         <div class="game-title">${game.title}</div>
         <div class="favorite-btn"><i class="far fa-heart"></i></div>
     `;
-
-    // Click to play
     box.addEventListener('click', (e) => {
-        if (e.target.closest('.favorite-btn')) return; // Don't play if clicking heart
+        if (e.target.closest('.favorite-btn')) return;
 
         if (!game.url || game.url.includes('placeholder')) return;
 
@@ -741,8 +659,6 @@ const createGameBox = (game) => {
             }, 2000);
         }
     });
-
-    // Heart click to toggle favorite
     box.querySelector('.favorite-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         toggleFavorite(box);
@@ -750,39 +666,32 @@ const createGameBox = (game) => {
 
     return box;
 };
-
-// Add game to recent
 const addToRecent = (game) => {
     let recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
-    recent = recent.filter(r => r.url !== game.url); // Remove if already exists
-    recent.unshift(game); // Add to front
+    recent = recent.filter(r => r.url !== game.url);
+    recent.unshift(game);
     if (recent.length > MAX_RECENT) recent.pop();
     localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
     renderRecent();
 };
 
-// Render Favorites Tab
 const renderFavorites = () => {
     const container = document.getElementById('favorites-wrapper');
     if (!container) return;
 
     const favorites = getFavorites();
 
-    // Clear previous content
     container.innerHTML = '';
 
     if (favorites.length === 0) {
         container.innerHTML = '<p class="text-center text-gray-400 text-xl col-span-full py-10">No favorite games yet. Click the ♡ on a game to add it!</p>';
         return;
     }
-
-    // Create a row wrapper for layout consistency
     const row = document.createElement('div');
     row.className = 'five-box-row';
 
     favorites.forEach(game => {
-        const box = createGameBox(game);
-        // Set heart as filled since it's in favorites
+        const box = createGameBox(game);s
         box.querySelector('.favorite-btn i').classList.replace('far', 'fas');
         row.appendChild(box);
     });
@@ -790,7 +699,6 @@ const renderFavorites = () => {
     container.appendChild(row);
 };
 
-// Render Recent Tab
 const renderRecent = () => {
     const container = document.getElementById('recent-wrapper');
     if (!container) return;
@@ -809,7 +717,6 @@ const renderRecent = () => {
 
     recent.forEach(game => {
         const box = createGameBox(game);
-        // Check if it's also favorited
         const isFav = getFavorites().some(f => f.url === game.url);
         const heart = box.querySelector('.favorite-btn i');
         heart.classList.toggle('fas', isFav);
@@ -820,7 +727,6 @@ const renderRecent = () => {
     container.appendChild(row);
 };
 
-// Update heart icons in main games list
 const updateMainGameHearts = () => {
     document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
         const url = box.dataset.url;
@@ -834,8 +740,6 @@ const updateMainGameHearts = () => {
         }
     });
 };
-
-// Attach favorite click handlers to main games
 const attachFavoriteListeners = () => {
     document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
         const heartBtn = box.querySelector('.favorite-btn');
@@ -848,8 +752,6 @@ const attachFavoriteListeners = () => {
         }
     });
 };
-
-// Track recent plays from main list
 document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
     box.addEventListener('click', function(e) {
         if (e.target.closest('.favorite-btn')) return;
@@ -862,21 +764,15 @@ document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box =
         addToRecent(game);
     });
 });
-
-// Initial render & setup
 renderFavorites();
 renderRecent();
 attachFavoriteListeners();
 updateMainGameHearts();
-
-// Re-attach listeners after search/filtering changes visibility
 const observer = new MutationObserver(() => {
     attachFavoriteListeners();
     updateMainGameHearts();
 });
 observer.observe(document.getElementById('game-box-wrapper'), { childList: true, subtree: true });
-
-// Refresh when switching tabs
 const originalShowView = window.showView;
 window.showView = (name) => {
     originalShowView(name);
@@ -888,9 +784,6 @@ window.showView = (name) => {
     }
 };
 });
-// ========================
-// FPS COUNTER (Now toggleable in Settings)
-// ========================
 const fpsCounter = document.getElementById('fps-counter');
 const fpsValue = document.getElementById('fps-value');
 const fpsToggle = document.getElementById('fps-counter-toggle');
@@ -905,8 +798,6 @@ if (fpsCounter && fpsValue && fpsToggle) {
         if (timestamp - lastTime >= 1000) {
             const fps = Math.round(frames * 1000 / (timestamp - lastTime));
             fpsValue.textContent = fps;
-
-            // Color coding
             fpsValue.style.color = fps >= 55 ? '#4ade80' : (fps >= 30 ? '#fbbf24' : '#ef4444');
 
             frames = 0;
@@ -930,21 +821,198 @@ if (fpsCounter && fpsValue && fpsToggle) {
         }
         localStorage.setItem('fpsCounterEnabled', enabled);
     };
-
-    // Load saved setting (default: true)
     const savedFpsSetting = localStorage.getItem('fpsCounterEnabled');
     const isEnabled = savedFpsSetting !== null ? savedFpsSetting === 'true' : true;
 
     fpsToggle.checked = isEnabled;
     toggleFPSCounter(isEnabled);
-
-    // Listen for toggle changes
     fpsToggle.addEventListener('change', () => {
         toggleFPSCounter(fpsToggle.checked);
     });
-
-    // Clean up on unload
     window.addEventListener('beforeunload', () => {
         if (rafId) cancelAnimationFrame(rafId);
     });
 }
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebar = document.getElementById('sidebar');
+const body = document.body;
+
+mobileMenuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    body.classList.toggle('sidebar-open');
+});
+document.addEventListener('click', (e) => {
+    if (body.classList.contains('sidebar-open') && !sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        sidebar.classList.remove('open');
+        body.classList.remove('sidebar-open');
+    }
+});
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (window.innerWidth < 1024) {
+            sidebar.classList.remove('open');
+            body.classList.remove('sidebar-open');
+        }
+    });
+});
+document.querySelector('.sidebar-btn[data-view="home-page"]').classList.add('active');
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+function renderFavorites() {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const grid = document.getElementById('favorites-grid');
+    grid.innerHTML = '';
+    
+    if (favorites.length === 0) {
+        document.getElementById('no-favorites').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('no-favorites').classList.add('hidden');
+
+    favorites.forEach(game => {
+        const box = createGameBox(game);
+        grid.appendChild(box);
+    });
+}
+
+function renderRecents() {
+    const recents = JSON.parse(localStorage.getItem('recents') || '[]');
+    const grid = document.getElementById('recent-grid');
+    grid.innerHTML = '';
+    
+    if (recents.length === 0) {
+        document.getElementById('no-recent').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('no-recent').classList.add('hidden');
+
+    recents.forEach(game => {
+        const box = createGameBox(game);
+        grid.appendChild(box);
+    });
+}
+function createGameBox(game) {
+    const box = document.createElement('div');
+    box.className = 'game-box';
+    box.dataset.url = game.url;
+    box.dataset.title = game.title;
+    box.dataset.img = game.img;
+
+    box.innerHTML = `
+        <img src="${game.img}" alt="${game.title}" loading="lazy">
+        <div class="game-title">${game.title}</div>
+        <div class="favorite-btn ${game.isFavorite ? 'favorited' : ''}">
+            <i class="${game.isFavorite ? 'fas' : 'far'} fa-heart"></i>
+        </div>
+    `;
+
+    box.addEventListener('click', (e) => {
+        if (e.target.closest('.favorite-btn')) return;
+        openGame(game.url, game.title);
+        addToRecents(game);
+    });
+    box.querySelector('.favorite-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(game);
+    });
+
+    return box;
+}
+function renderFavorites() {
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const grid = document.getElementById('favorites-grid');
+    const noMsg = document.getElementById('no-favorites');
+
+    grid.innerHTML = '';
+
+    if (favorites.length === 0) {
+        noMsg.style.display = 'block';
+        return;
+    }
+    noMsg.style.display = 'none';
+
+    favorites.forEach(game => {
+        game.isFavorite = true;
+        grid.appendChild(createGameBox(game));
+    });
+}
+
+function renderRecents() {
+    const recents = JSON.parse(localStorage.getItem('recents') || '[]');
+    const grid = document.getElementById('recent-grid');
+    const noMsg = document.getElementById('no-recent');
+
+    grid.innerHTML = '';
+
+    if (recents.length === 0) {
+        noMsg.style.display = 'block';
+        return;
+    }
+    noMsg.style.display = 'none';
+    recents.slice().reverse().forEach(game => {
+        const favoriteList = JSON.parse(localStorage.getItem('favorites') || '[]');
+        const isFav = favoriteList.some(f => f.title === game.title);
+        game.isFavorite = isFav;
+        grid.appendChild(createGameBox(game));
+    });
+}
+function addToRecents(game) {
+    let recents = JSON.parse(localStorage.getItem('recents') || '[]');
+    recents = recents.filter(r => r.title !== game.title);
+    recents.unshift({
+        title: game.title,
+        url: game.url,
+        img: game.img
+    });
+    if (recents.length > 50) recents.pop();
+    localStorage.setItem('recents', JSON.stringify(recents));
+    if (!document.getElementById('recent-view').classList.contains('hidden-view')) {
+        renderRecents();
+    }
+}
+
+function toggleFavorite(game) {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const exists = favorites.some(f => f.title === game.title);
+
+    if (exists) {
+        favorites = favorites.filter(f => f.title !== game.title);
+    } else {
+        favorites.push({
+            title: game.title,
+            url: game.url,
+            img: game.img
+        });
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderFavorites();
+    if (!document.getElementById('recent-view').classList.contains('hidden-view')) {
+        renderRecents();
+    }
+    if (!document.getElementById('games-view').classList.contains('hidden-view')) {
+    }
+}
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('[data-view="favorites"]').addEventListener('click', renderFavorites);
+    document.querySelector('[data-view="recent"]').addEventListener('click', renderRecents);
+    const originalShowView = showView;
+    window.showView = function(viewId) {
+        if (originalShowView) originalShowView(viewId);
+
+        if (viewId === 'favorites') renderFavorites();
+        if (viewId === 'recent') renderRecents();
+    };
+});
