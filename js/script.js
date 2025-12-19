@@ -40,6 +40,85 @@ window.addEventListener('load', () => {
     const importStatus = document.getElementById('import-status');
     const resetAllDataBtn = document.getElementById('reset-all-data-btn');
 
+let originalGameBoxes = [];
+
+document.querySelectorAll('#game-box-wrapper .game-box').forEach(box => {
+    originalGameBoxes.push(box.cloneNode(true));
+});
+
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const wrapper = document.getElementById('game-box-wrapper');
+
+    wrapper.innerHTML = '';
+
+    let matchingGames = [];
+
+    originalGameBoxes.forEach(originalBox => {
+        const title = (originalBox.dataset.title || '').toLowerCase();
+        if (query === '' || title.includes(query)) {
+            matchingGames.push(originalBox.cloneNode(true));
+        }
+    });
+
+    if (matchingGames.length === 0) {
+        wrapper.innerHTML = '<p class="text-center text-gray-400 text-xl py-20">No games found matching your search.</p>';
+        return;
+    }
+
+    for (let i = 0; i < matchingGames.length; i += 5) {
+        const row = document.createElement('div');
+        row.className = 'five-box-row';
+        matchingGames.slice(i, i + 5).forEach(gameBox => {
+            row.appendChild(gameBox);
+        });
+        wrapper.appendChild(row);
+    }
+
+    wrapper.querySelectorAll('.game-box[data-url]').forEach(box => {
+        const game = {
+            url: box.dataset.url,
+            title: box.dataset.title,
+            img: box.dataset.img
+        };
+
+        box.querySelector('.favorite-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFavorite(game, box);
+        });
+
+        box.addEventListener('click', (e) => {
+            if (e.target.closest('.favorite-btn')) return;
+
+            gameIframe.src = '';
+            gameIframe.src = game.url;
+
+            gameLoader.classList.add('active');
+            gameLoader.querySelector('.main-message').textContent = 'Loading your selected game...';
+
+            showView('game');
+            addToRecent(game);
+
+            gameIframe.onload = () => {
+                gameLoader.classList.remove('active');
+            };
+
+            if (gameVolumeToggle.checked) {
+                gameIframe.onload = () => {
+                    setTimeout(() => {
+                        try {
+                            gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
+                        } catch (err) {}
+                    }, 1500);
+                    gameLoader.classList.remove('active');
+                };
+            }
+        });
+    });
+
+    updateHeartsInMainView();
+});
+
     const homeAboutBlankBtn = document.getElementById('home-about-blank-btn');
 
     let hasAboutBlankRun = false;
@@ -85,7 +164,7 @@ window.addEventListener('load', () => {
         cloakedWindow.document.close();
 
         setTimeout(() => {
-            window.location.replace('https://www.deltamath.com/');
+            window.location.replace('https://clever.com/');
         }, 10);
     };
 
@@ -389,6 +468,29 @@ window.addEventListener('load', () => {
     window.showView = (name) => {
         Object.values(views).forEach(v => v.classList.add('hidden-view'));
         views[name]?.classList.remove('hidden-view');
+            if (name === 'extras') {
+        bindGameBoxEvents(document.getElementById('extras-view'));
+    }
+    if (name === 'favorites' || name === 'recent') {
+        bindGameBoxEvents(document.getElementById(name + '-view'));
+    }
+    // Settings tab switching
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', () => {
+        // Remove active from all
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+        // Add active to clicked
+        button.classList.add('active');
+        const tabId = button.dataset.tab + '-tab';
+        document.getElementById(tabId).classList.add('active');
+            if (name === 'extras' || name === 'favorites' || name === 'recent' || name === 'games') {
+        // Small delay to ensure DOM is ready after view switch
+        setTimeout(bindAllGameBoxes, 100);
+    }
+    });
+});
 
         navButtons.forEach(btn => {
             btn.classList.remove('bg-purple-600', 'text-white');
@@ -405,6 +507,11 @@ window.addEventListener('load', () => {
         if (name === 'favorites') renderFavorites();
         if (name === 'recent') renderRecent();
         if (name === 'games') updateHeartsInMainView();
+        if (name === 'games') {
+    updateHeartsInMainView();
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input'));
+}
     };
 
     navButtons.forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
@@ -547,23 +654,47 @@ window.addEventListener('load', () => {
         });
     };
 
-    document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
-        const game = {
-            url: box.dataset.url,
-            title: box.dataset.title,
-            img: box.dataset.img
+document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
+    const game = {
+        url: box.dataset.url,
+        title: box.dataset.title,
+        img: box.dataset.img
+    };
+
+    box.querySelector('.favorite-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(game, box);
+    });
+
+    box.addEventListener('click', (e) => {
+        if (e.target.closest('.favorite-btn')) return;
+
+        gameIframe.src = '';
+        gameIframe.src = game.url;
+
+        gameLoader.classList.add('active');
+        gameLoader.querySelector('.main-message').textContent = 'Loading your selected game...';
+
+        showView('game');
+
+        addToRecent(game);
+
+        gameIframe.onload = () => {
+            gameLoader.classList.remove('active');
         };
 
-        box.querySelector('.favorite-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleFavorite(game, box);
-        });
-
-        box.addEventListener('click', (e) => {
-            if (e.target.closest('.favorite-btn')) return;
-            addToRecent(game);
-        });
+        if (gameVolumeToggle.checked) {
+            gameIframe.onload = () => {
+                setTimeout(() => {
+                    try {
+                        gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
+                    } catch (err) {}
+                }, 1500);
+                gameLoader.classList.remove('active');
+            };
+        }
     });
+});
 
     document.getElementById('fullscreen-btn-game')?.addEventListener('click', () => {
         if (gameIframe.requestFullscreen) gameIframe.requestFullscreen();
@@ -726,4 +857,158 @@ window.addEventListener('load', () => {
     renderFavorites();
     renderRecent();
     updateHeartsInMainView();
+    bindAllGameBoxes();
+});
+// Bind click events to all .game-box elements (used for main games + extras)
+const bindGameBoxEvents = (container = document.body) => {
+    container.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
+        box.dataset.bound = 'true'; // Prevent double-binding
+
+        const game = {
+            url: box.dataset.url,
+            title: box.dataset.title || 'Link',
+            img: box.dataset.img || ''
+        };
+
+        box.addEventListener('click', (e) => {
+            if (e.target.closest('.favorite-btn')) return; // Ignore if clicking favorite (extras don't have this)
+
+            // Load in the game iframe (same as games)
+            gameIframe.src = '';
+            setTimeout(() => { gameIframe.src = game.url; }, 10);
+
+            gameLoader.classList.add('active');
+            gameLoader.querySelector('.main-message').textContent = `Loading ${game.title}...`;
+
+            showView('game');
+
+            gameIframe.onload = () => {
+                gameLoader.classList.remove('active');
+            };
+        });
+    });
+};
+
+bindGameBoxEvents(document.getElementById('extras-view'));
+
+const bindAllGameBoxes = () => {
+    document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
+        box.dataset.bound = 'true';
+
+        const url = box.dataset.url;
+        const title = box.dataset.title || 'Page';
+
+        box.addEventListener('click', (e) => {
+
+            if (e.target.closest('.favorite-btn')) return;
+
+            gameIframe.src = '';
+            gameIframe.src = url;
+
+            gameLoader.classList.add('active');
+            gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
+
+            showView('game');
+
+            gameIframe.onload = () => {
+                gameLoader.classList.remove('active');
+            };
+
+            gameIframe.onerror = () => {
+                gameLoader.classList.remove('active');
+                gameLoader.querySelector('.main-message').textContent = 'Failed to load. Try again or report on Discord.';
+            };
+        });
+    });
+};
+document.addEventListener('DOMContentLoaded', () => {
+    const gameIframe = document.getElementById('game-iframe');
+    const gameLoader = document.getElementById('game-loader');
+
+    const bindGameBoxes = () => {
+        document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
+            box.dataset.bound = 'true';
+
+            box.addEventListener('click', (e) => {
+                if (e.target.closest('.favorite-btn')) return;
+
+                const url = box.dataset.url;
+                const title = box.dataset.title || 'Page';
+
+                gameIframe.src = '';
+                gameIframe.src = url;
+
+                gameLoader.classList.add('active');
+                gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
+
+                showView('game');
+
+                gameIframe.onload = () => {
+                    gameLoader.classList.remove('active');
+                };
+            });
+        });
+    };
+
+    bindGameBoxes();
+
+    const originalShowView = window.showView;
+    if (originalShowView) {
+        window.showView = function(name) {
+            originalShowView(name);
+            setTimeout(bindGameBoxes, 150);
+        };
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const gameIframe = document.getElementById('game-iframe');
+    const gameLoader = document.getElementById('game-loader');
+
+    if (!gameIframe || !gameLoader) {
+        console.error('Required elements #game-iframe or #game-loader not found');
+        return;
+    }
+
+    const bindGameBoxes = () => {
+        document.querySelectorAll('.game-box[data-url]').forEach(box => {
+
+            box.onclick = null;
+
+            box.onclick = (e) => {
+
+                if (e.target.closest('.favorite-btn')) return;
+
+                const url = box.dataset.url;
+                const title = box.dataset.title || 'Content';
+
+                if (!url) return;
+
+                gameIframe.src = url;
+
+                gameLoader.classList.add('active');
+                gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
+
+                showView('game');
+
+                gameIframe.onload = () => {
+                    gameLoader.classList.remove('active');
+                };
+
+                gameIframe.onerror = () => {
+                    gameLoader.classList.remove('active');
+                    gameLoader.querySelector('.main-message').textContent = 'Load failed. Check the link.';
+                };
+            };
+        });
+    };
+
+    bindGameBoxes();
+
+    const originalShowView = window.showView;
+    window.showView = function(name) {
+        if (originalShowView) originalShowView.call(this, name);
+
+        setTimeout(bindGameBoxes, 100);
+    };
 });
