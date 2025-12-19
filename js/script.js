@@ -1,4 +1,6 @@
+// if you see alot of "//" its because i dont have to struggle finding stuff
 window.addEventListener('load', () => {
+    // ==================== DOM ELEMENTS ====================
     const views = {
         'home-page': document.getElementById('home-page-view'),
         'games': document.getElementById('games-view'),
@@ -12,20 +14,20 @@ window.addEventListener('load', () => {
     const navButtons = document.querySelectorAll('.nav-button');
     const gameIframe = document.getElementById('game-iframe');
     const gameLoader = document.getElementById('game-loader');
+    const searchInput = document.getElementById('game-search');
+    const showcaseImg = document.getElementById('showcase-img');
+    const showcaseTitle = document.getElementById('showcase-title');
+    const showcaseSpeed = document.getElementById('showcase-speed');
+    const gradientWord = document.getElementById('gradient-word');
+    const particleCanvas = document.getElementById('particle-canvas');
+    const ctx = particleCanvas.getContext('2d');
+
+    // Settings controls
     const particlesToggle = document.getElementById('particles-toggle');
     const particleDensity = document.getElementById('particle-density');
     const particleDensityValue = document.getElementById('particle-density-value');
     const gameVolumeToggle = document.getElementById('game-volume-toggle');
     const performanceToggle = document.getElementById('performance-toggle');
-    const showcaseSpeed = document.getElementById('showcase-speed');
-    const showcaseImg = document.getElementById('showcase-img');
-    const showcaseTitle = document.getElementById('showcase-title');
-    const searchInput = document.getElementById('game-search');
-    const gradientWord = document.getElementById('gradient-word');
-    const gameBoxes = document.querySelectorAll('.game-box[data-url]');
-    const themeOptions = document.querySelectorAll('.theme-option');
-    const body = document.body;
-
     const panicToggle = document.getElementById('panic-toggle');
     const panicOptions = document.getElementById('panic-options');
     const panicKeyInput = document.getElementById('panic-key-input');
@@ -35,179 +37,259 @@ window.addEventListener('load', () => {
     const siteTitleInput = document.getElementById('site-title-input');
     const siteLogoInput = document.getElementById('site-logo-input');
     const currentLogo = document.getElementById('current-logo');
-    const exportSettingsBtn = document.getElementById('export-settings-btn');
-    const importSettingsInput = document.getElementById('import-settings-input');
-    const importStatus = document.getElementById('import-status');
-    const resetAllDataBtn = document.getElementById('reset-all-data-btn');
+    const fpsToggle = document.getElementById('fps-counter-toggle');
+    const fpsValue = document.getElementById('fps-value');
 
-let originalGameBoxes = [];
+    const body = document.body;
 
-document.querySelectorAll('#game-box-wrapper .game-box').forEach(box => {
-    originalGameBoxes.push(box.cloneNode(true));
-});
+    // ==================== CONSTANTS & STATE ====================
+    const FAVORITES_KEY = 'favoriteGames';
+    const RECENT_KEY = 'recentGames';
+    const MAX_RECENT = 20;
 
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const wrapper = document.getElementById('game-box-wrapper');
+    let originalGameBoxes = [];
+    let particles = [];
+    let animationFrameId = null;
+    let showcaseInterval = null;
+    let currentShowcaseIndex = 0;
+    let hasAboutBlankRun = false;
 
-    wrapper.innerHTML = '';
-
-    let matchingGames = [];
-
-    originalGameBoxes.forEach(originalBox => {
-        const title = (originalBox.dataset.title || '').toLowerCase();
-        if (query === '' || title.includes(query)) {
-            matchingGames.push(originalBox.cloneNode(true));
-        }
+    // ==================== INITIAL SETUP ====================
+    // Cache original game boxes for search filtering
+    document.querySelectorAll('#game-box-wrapper .game-box').forEach(box => {
+        originalGameBoxes.push(box.cloneNode(true));
     });
 
-    if (matchingGames.length === 0) {
-        wrapper.innerHTML = '<p class="text-center text-gray-400 text-xl py-20">No games found matching your search.</p>';
-        return;
-    }
+    // Canvas setup for particles
+    const resizeCanvas = () => {
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    for (let i = 0; i < matchingGames.length; i += 5) {
-        const row = document.createElement('div');
-        row.className = 'five-box-row';
-        matchingGames.slice(i, i + 5).forEach(gameBox => {
-            row.appendChild(gameBox);
+    // ==================== UTILITY FUNCTIONS ====================
+    const getFavorites = () => JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+    const saveFavorites = (favs) => localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+    const getRecent = () => JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    const saveRecent = (rec) => localStorage.setItem(RECENT_KEY, JSON.stringify(rec));
+
+    const showView = (name) => {
+        // Hide all views
+        Object.values(views).forEach(v => v?.classList.add('hidden-view'));
+        views[name]?.classList.remove('hidden-view');
+
+        // Update navigation highlighting
+        navButtons.forEach(btn => {
+            btn.classList.remove('bg-purple-600', 'text-white');
+            btn.classList.add('text-gray-300');
+            if (btn.dataset.view === name) {
+                btn.classList.add('bg-purple-600', 'text-white');
+                btn.classList.remove('text-gray-300');
+            }
         });
-        wrapper.appendChild(row);
-    }
 
-    wrapper.querySelectorAll('.game-box[data-url]').forEach(box => {
-        const game = {
-            url: box.dataset.url,
-            title: box.dataset.title,
-            img: box.dataset.img
-        };
+        // Sidebar active state
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.sidebar-btn[data-view="${name}"]`)?.classList.add('active');
 
-        box.querySelector('.favorite-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleFavorite(game, box);
-        });
+        // View-specific logic
+        if (name === 'home-page') startShowcase();
+        else clearInterval(showcaseInterval);
 
-        box.addEventListener('click', (e) => {
-            if (e.target.closest('.favorite-btn')) return;
+        if (name === 'favorites') renderFavorites();
+        if (name === 'recent') renderRecent();
+        if (name === 'games') {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        }
 
-            gameIframe.src = '';
-            gameIframe.src = game.url;
+        // Re-bind game boxes after view change
+        setTimeout(bindAllGameBoxes, 100);
+    };
 
-            gameLoader.classList.add('active');
-            gameLoader.querySelector('.main-message').textContent = 'Loading your selected game...';
+    window.showView = showView; // Make global for external calls
 
-            showView('game');
-            addToRecent(game);
+    // ==================== GAME BOX HANDLING ====================
+    const createGameBox = (game, isFavorite = false) => {
+        const box = document.createElement('div');
+        box.className = 'game-box';
+        box.dataset.url = game.url;
+        box.dataset.title = game.title;
+        box.dataset.img = game.img;
 
-            gameIframe.onload = () => {
-                gameLoader.classList.remove('active');
+        box.innerHTML = `
+            <img src="${game.img}" alt="${game.title}" loading="lazy">
+            <div class="game-title">${game.title}</div>
+            <div class="favorite-btn"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></div>
+        `;
+
+        return box;
+    };
+
+    const bindAllGameBoxes = () => {
+        document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
+            box.dataset.bound = 'true';
+
+            const game = {
+                url: box.dataset.url,
+                title: box.dataset.title || 'Content',
+                img: box.dataset.img || ''
             };
 
-            if (gameVolumeToggle.checked) {
-                gameIframe.onload = () => {
+            // Favorite button
+            const favBtn = box.querySelector('.favorite-btn');
+            if (favBtn) {
+                favBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(game, box);
+                });
+            }
+
+            // Main click - load game
+            box.addEventListener('click', (e) => {
+                if (e.target.closest('.favorite-btn')) return;
+
+                gameIframe.src = game.url;
+                gameLoader.classList.add('active');
+                gameLoader.querySelector('.main-message').textContent = `Loading ${game.title}...`;
+
+                showView('game');
+                addToRecent(game);
+
+                gameIframe.onload = () => gameLoader.classList.remove('active');
+
+                if (gameVolumeToggle.checked) {
                     setTimeout(() => {
                         try {
                             gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
                         } catch (err) {}
                     }, 1500);
-                    gameLoader.classList.remove('active');
-                };
-            }
+                }
+            });
         });
-    });
+    };
 
-    updateHeartsInMainView();
-});
+    // Initial binding
+    bindAllGameBoxes();
 
-    const homeAboutBlankBtn = document.getElementById('home-about-blank-btn');
+    // ==================== SEARCH FUNCTIONALITY ====================
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        const wrapper = document.getElementById('game-box-wrapper');
+        wrapper.innerHTML = '';
 
-    let hasAboutBlankRun = false;
-    const openInAboutBlank = (sourceUrl) => {
-        if (hasAboutBlankRun) return;
-        hasAboutBlankRun = true;
+        const matchingGames = originalGameBoxes.filter(box => {
+            const title = (box.dataset.title || '').toLowerCase();
+            return query === '' || title.includes(query);
+        });
 
-        const title = document.title;
-        const faviconLink = document.querySelector("link[rel*='icon']");
-        const faviconHref = faviconLink ? faviconLink.href : '';
-
-        const cloakedWindow = window.open('', '_blank');
-
-        if (!cloakedWindow) {
-            hasAboutBlankRun = false;
-            alert('Popups are blocked! Please allow popups for this site to use about:blank.');
+        if (matchingGames.length === 0) {
+            wrapper.innerHTML = '<p class="text-center text-gray-400 text-xl py-20">No games found matching your search.</p>';
             return;
         }
 
-        cloakedWindow.location.href = 'about:blank';
+        // Group into rows of 5
+        for (let i = 0; i < matchingGames.length; i += 5) {
+            const row = document.createElement('div');
+            row.className = 'five-box-row';
+            matchingGames.slice(i, i + 5).forEach(clone => row.appendChild(clone.cloneNode(true)));
+            wrapper.appendChild(row);
+        }
 
-        cloakedWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>${title}</title>
-                ${faviconHref ? `<link rel="icon" href="${faviconHref}" type="image/x-icon">` : ''}
-                <style>
-                    body, html { margin:0; padding:0; height:100%; overflow:hidden; }
-                </style>
-            </head>
-            <body>
-                <iframe 
-                    src="${sourceUrl}"
-                    frameborder="0"
-                    allowfullscreen
-                    style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;">
-                </iframe>
-            </body>
-            </html>
-        `);
-        cloakedWindow.document.close();
+        bindAllGameBoxes(); // Re-bind after DOM update
+        updateHeartsInMainView();
+    });
 
-        setTimeout(() => {
-            window.location.replace('https://clever.com/');
-        }, 10);
-    };
+    // ==================== FAVORITES & RECENT ====================
+    const toggleFavorite = (game, boxElement = null) => {
+        let favorites = getFavorites();
+        const index = favorites.findIndex(f => f.url === game.url);
 
-    if (homeAboutBlankBtn) {
-        homeAboutBlankBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openInAboutBlank(window.location.href);
-        });
-    }
+        const heartIcons = boxElement
+            ? [boxElement.querySelector('.favorite-btn i')]
+            : document.querySelectorAll(`.game-box[data-url="${game.url}"] .favorite-btn i`);
 
-    const words = ['freedom.', 'beauty.', 'peace.', 'amazement.'];
-    let wordIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-
-    const type = () => {
-        const currentWord = words[wordIndex];
-        if (isDeleting) {
-            gradientWord.textContent = currentWord.substring(0, charIndex - 1);
-            charIndex--;
+        if (index > -1) {
+            favorites.splice(index, 1);
+            heartIcons.forEach(icon => icon?.classList.replace('fas', 'far'));
         } else {
-            gradientWord.textContent = currentWord.substring(0, charIndex + 1);
-            charIndex++;
+            favorites.push(game);
+            heartIcons.forEach(icon => icon?.classList.replace('far', 'fas'));
         }
 
-        let typeSpeed = 120;
-        if (isDeleting) typeSpeed /= 2;
-        if (!isDeleting && charIndex === currentWord.length) {
-            typeSpeed = 2500;
-            isDeleting = true;
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            wordIndex = (wordIndex + 1) % words.length;
-            typeSpeed = 500;
-        }
-        setTimeout(type, typeSpeed);
+        saveFavorites(favorites);
+        renderFavorites();
+        renderRecent();
+        updateHeartsInMainView();
     };
-    type();
 
-    let currentShowcaseIndex = 0;
-    let showcaseInterval;
+    const addToRecent = (game) => {
+        let recent = getRecent();
+        recent = recent.filter(r => r.url !== game.url);
+        recent.unshift(game);
+        if (recent.length > MAX_RECENT) recent.pop();
+        saveRecent(recent);
+        renderRecent();
+    };
 
+    const updateHeartsInMainView = () => {
+        document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
+            const url = box.dataset.url;
+            if (!url || url.includes('placeholder')) return;
+            const isFav = getFavorites().some(f => f.url === url);
+            const heart = box.querySelector('.favorite-btn i');
+            if (heart) {
+                heart.classList.toggle('fas', isFav);
+                heart.classList.toggle('far', !isFav);
+            }
+        });
+    };
+
+    const renderFavorites = () => {
+        const wrapper = document.getElementById('favorites-wrapper');
+        if (!wrapper) return;
+        const grid = wrapper.querySelector('.game-grid') || wrapper;
+        grid.innerHTML = '';
+
+        const favorites = getFavorites();
+        if (favorites.length === 0) {
+            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No favorite games yet. Click the heart on a game to add it!</p>';
+            return;
+        }
+
+        const row = document.createElement('div');
+        row.className = 'five-box-row';
+        favorites.forEach(game => row.appendChild(createGameBox(game, true)));
+        grid.appendChild(row);
+        bindAllGameBoxes();
+    };
+
+    const renderRecent = () => {
+        const wrapper = document.getElementById('recent-wrapper');
+        if (!wrapper) return;
+        const grid = wrapper.querySelector('.game-grid') || wrapper;
+        grid.innerHTML = '';
+
+        const recent = getRecent();
+        if (recent.length === 0) {
+            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No recently played games.</p>';
+            return;
+        }
+
+        const row = document.createElement('div');
+        row.className = 'five-box-row';
+        recent.forEach(game => {
+            const isFav = getFavorites().some(f => f.url === game.url);
+            row.appendChild(createGameBox(game, isFav));
+        });
+        grid.appendChild(row);
+        bindAllGameBoxes();
+    };
+
+    // ==================== SHOWCASE ====================
     const updateShowcase = () => {
+        const gameBoxes = document.querySelectorAll('.game-box[data-url]');
         let box;
         let attempts = 0;
         do {
@@ -230,22 +312,39 @@ searchInput.addEventListener('input', (e) => {
         showcaseInterval = setInterval(updateShowcase, parseInt(showcaseSpeed.value));
     };
 
-    const canvas = document.getElementById('particle-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let animationFrameId;
+    // ==================== TYPING EFFECT ====================
+    const words = ['freedom.', 'beauty.', 'peace.', 'amazement.', 'Flourishment.', 'creativity.', 'Success.'];
+    let wordIndex = 0, charIndex = 0, isDeleting = false;
 
-    const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    const type = () => {
+        const currentWord = words[wordIndex];
+        gradientWord.textContent = isDeleting
+            ? currentWord.substring(0, charIndex - 1)
+            : currentWord.substring(0, charIndex + 1);
+
+        charIndex += isDeleting ? -1 : 1;
+
+        let typeSpeed = 120;
+        if (!isDeleting && charIndex === currentWord.length) {
+            typeSpeed = 2500;
+            isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            wordIndex = (wordIndex + 1) % words.length;
+            typeSpeed = 500;
+        } else if (isDeleting) {
+            typeSpeed /= 2;
+        }
+
+        setTimeout(type, typeSpeed);
     };
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    type();
 
+    // ==================== PARTICLES ====================
     class Particle {
         constructor() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
+            this.x = Math.random() * particleCanvas.width;
+            this.y = Math.random() * particleCanvas.height;
             this.radius = Math.random() * 1.5 + 0.5;
             this.velocity = {
                 x: (Math.random() - 0.5) * 0.2,
@@ -261,8 +360,8 @@ searchInput.addEventListener('input', (e) => {
         update() {
             this.x += this.velocity.x;
             this.y += this.velocity.y;
-            if (this.x < 0 || this.x > canvas.width) this.velocity.x = -this.velocity.x;
-            if (this.y < 0 || this.y > canvas.height) this.velocity.y = -this.velocity.y;
+            if (this.x < 0 || this.x > particleCanvas.width) this.velocity.x = -this.velocity.x;
+            if (this.y < 0 || this.y > particleCanvas.height) this.velocity.y = -this.velocity.y;
         }
     }
 
@@ -272,7 +371,7 @@ searchInput.addEventListener('input', (e) => {
     };
 
     const animateParticles = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
         particles.forEach(p => {
             p.update();
             p.draw();
@@ -295,29 +394,26 @@ searchInput.addEventListener('input', (e) => {
         animationFrameId = requestAnimationFrame(animateParticles);
     };
 
-    const toggleParticles = (enabled, count) => {
+    const toggleParticles = (enabled, count = 50) => {
         if (enabled) {
-            canvas.style.display = 'block';
+            particleCanvas.style.display = 'block';
             initParticles(count);
             animateParticles();
         } else {
-            canvas.style.display = 'none';
+            particleCanvas.style.display = 'none';
             cancelAnimationFrame(animationFrameId);
             particles = [];
         }
     };
 
+    // ==================== SETTINGS & PERSISTENCE ====================
     const applyTheme = (theme) => {
         body.setAttribute('data-theme', theme);
         localStorage.setItem('selectedTheme', theme);
-        themeOptions.forEach(opt => opt.classList.toggle('active', opt.dataset.theme === theme));
+        document.querySelectorAll('.theme-option').forEach(opt =>
+            opt.classList.toggle('active', opt.dataset.theme === theme)
+        );
     };
-
-    themeOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            applyTheme(option.dataset.theme);
-        });
-    });
 
     const applyCloaking = () => {
         const title = localStorage.getItem('cloakTitle') || document.title;
@@ -325,19 +421,47 @@ searchInput.addEventListener('input', (e) => {
         siteTitleInput.value = title;
 
         const favicon = localStorage.getItem('cloakFavicon');
+        let link = document.querySelector("link[rel~='icon']");
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
+        }
         if (favicon) {
-            let link = document.querySelector("link[rel~='icon']");
-            if (!link) {
-                link = document.createElement('link');
-                link.rel = 'icon';
-                document.head.appendChild(link);
-            }
             link.href = favicon;
             currentLogo.textContent = 'Custom';
         } else {
             currentLogo.textContent = 'Default';
         }
     };
+
+    const loadSettings = () => {
+        applyTheme(localStorage.getItem('selectedTheme') || 'dark');
+
+        const particlesEnabled = localStorage.getItem('particlesEnabled') !== 'false';
+        const particleCount = parseInt(localStorage.getItem('particleCount')) || 50;
+        particlesToggle.checked = particlesEnabled;
+        particleDensity.value = particleCount;
+        particleDensityValue.textContent = particleCount;
+        toggleParticles(particlesEnabled, particleCount);
+
+        performanceToggle.checked = localStorage.getItem('performanceMode') === 'true';
+        showcaseSpeed.value = localStorage.getItem('showcaseSpeed') || '2000';
+        gameVolumeToggle.checked = localStorage.getItem('muteGameAudio') === 'true';
+
+        panicToggle.checked = localStorage.getItem('panicEnabled') === 'true';
+        panicOptions.classList.toggle('hidden', !panicToggle.checked);
+        panicKeyInput.value = localStorage.getItem('panicKey') || '';
+        panicUrl.value = localStorage.getItem('panicUrl') || 'https://docs.google.com';
+
+        applyCloaking();
+    };
+    loadSettings();
+
+    // Settings event listeners
+    document.querySelectorAll('.theme-option').forEach(option => {
+        option.addEventListener('click', () => applyTheme(option.dataset.theme));
+    });
 
     siteTitleInput.addEventListener('input', () => {
         const newTitle = siteTitleInput.value.trim() || 'Study Snap';
@@ -347,37 +471,58 @@ searchInput.addEventListener('input', (e) => {
 
     siteLogoInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const dataUrl = ev.target.result;
-                let link = document.querySelector("link[rel~='icon']");
-                if (!link) {
-                    link = document.createElement('link');
-                    link.rel = 'icon';
-                    document.head.appendChild(link);
-                }
-                link.href = dataUrl;
-                localStorage.setItem('cloakFavicon', dataUrl);
-                currentLogo.textContent = 'Custom';
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const dataUrl = ev.target.result;
+            let link = document.querySelector("link[rel~='icon']") || document.createElement('link');
+            link.rel = 'icon';
+            link.href = dataUrl;
+            document.head.appendChild(link);
+            localStorage.setItem('cloakFavicon', dataUrl);
+            currentLogo.textContent = 'Custom';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    particlesToggle.addEventListener('change', () => {
+        const enabled = particlesToggle.checked;
+        toggleParticles(enabled, parseInt(particleDensity.value));
+        localStorage.setItem('particlesEnabled', enabled);
+    });
+
+    particleDensity.addEventListener('input', (e) => {
+        particleDensityValue.textContent = e.target.value;
+        localStorage.setItem('particleCount', e.target.value);
+        if (particlesToggle.checked) toggleParticles(true, parseInt(e.target.value));
+    });
+
+    performanceToggle.addEventListener('change', () => {
+        const enabled = performanceToggle.checked;
+        localStorage.setItem('performanceMode', enabled);
+        if (enabled) {
+            toggleParticles(false);
+            body.classList.add('perf-mode');
+        } else {
+            body.classList.remove('perf-mode');
+            const particlesOn = localStorage.getItem('particlesEnabled') !== 'false';
+            const count = parseInt(localStorage.getItem('particleCount')) || 50;
+            if (particlesOn) toggleParticles(true, count);
         }
+    });
+
+    showcaseSpeed.addEventListener('change', () => {
+        localStorage.setItem('showcaseSpeed', showcaseSpeed.value);
+        if (!views['home-page'].classList.contains('hidden-view')) startShowcase();
+    });
+
+    gameVolumeToggle.addEventListener('change', () => {
+        localStorage.setItem('muteGameAudio', gameVolumeToggle.checked);
     });
 
     panicToggle.addEventListener('change', () => {
         panicOptions.classList.toggle('hidden', !panicToggle.checked);
         localStorage.setItem('panicEnabled', panicToggle.checked);
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (localStorage.getItem('panicEnabled') === 'true') {
-            const key = localStorage.getItem('panicKey');
-            if (key && e.key.toUpperCase() === key) {
-                const url = localStorage.getItem('panicUrl') || 'https://docs.google.com';
-                window.location.href = url;
-            }
-        }
     });
 
     panicKeyInput.addEventListener('keydown', (e) => {
@@ -397,318 +542,91 @@ searchInput.addEventListener('input', (e) => {
         }
     });
 
-    particlesToggle.addEventListener('change', () => {
-        const enabled = particlesToggle.checked;
-        const count = parseInt(particleDensity.value);
-        toggleParticles(enabled, count);
-        localStorage.setItem('particlesEnabled', enabled);
-    });
-
-    particleDensity.addEventListener('input', (e) => {
-        particleDensityValue.textContent = e.target.value;
-        localStorage.setItem('particleCount', e.target.value);
-        if (particlesToggle.checked) {
-            toggleParticles(true, parseInt(e.target.value));
-        }
-    });
-
-    performanceToggle.addEventListener('change', () => {
-        const enabled = performanceToggle.checked;
-        localStorage.setItem('performanceMode', enabled);
-        if (enabled) {
-            toggleParticles(false);
-            document.body.classList.add('perf-mode');
-        } else {
-            const particlesWereOn = localStorage.getItem('particlesEnabled') !== 'false';
-            const count = +localStorage.getItem('particleCount') || 50;
-            if (particlesWereOn) toggleParticles(true, count);
-            document.body.classList.remove('perf-mode');
-        }
-    });
-
-    showcaseSpeed.addEventListener('change', () => {
-        localStorage.setItem('showcaseSpeed', showcaseSpeed.value);
-        if (!views['home-page'].classList.contains('hidden-view')) {
-            startShowcase();
-        }
-    });
-
-    gameVolumeToggle.addEventListener('change', () => {
-        localStorage.setItem('muteGameAudio', gameVolumeToggle.checked);
-    });
-
-    const loadSettings = () => {
-        const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
-        applyTheme(savedTheme);
-
-        const particlesEnabled = localStorage.getItem('particlesEnabled') !== 'false';
-        const particleCount = parseInt(localStorage.getItem('particleCount')) || 50;
-        particlesToggle.checked = particlesEnabled;
-        particleDensity.value = particleCount;
-        particleDensityValue.textContent = particleCount;
-        toggleParticles(particlesEnabled, particleCount);
-
-        performanceToggle.checked = localStorage.getItem('performanceMode') === 'true';
-
-        const savedSpeed = localStorage.getItem('showcaseSpeed') || '2000';
-        showcaseSpeed.value = savedSpeed;
-
-        gameVolumeToggle.checked = localStorage.getItem('muteGameAudio') === 'true';
-
-        panicToggle.checked = localStorage.getItem('panicEnabled') === 'true';
-        panicOptions.classList.toggle('hidden', !panicToggle.checked);
-        panicKeyInput.value = localStorage.getItem('panicKey') || '';
-        panicUrl.value = localStorage.getItem('panicUrl') || 'https://docs.google.com';
-
-        applyCloaking();
-    };
-
-    loadSettings();
-
-    window.showView = (name) => {
-        Object.values(views).forEach(v => v.classList.add('hidden-view'));
-        views[name]?.classList.remove('hidden-view');
-            if (name === 'extras') {
-        bindGameBoxEvents(document.getElementById('extras-view'));
-    }
-    if (name === 'favorites' || name === 'recent') {
-        bindGameBoxEvents(document.getElementById(name + '-view'));
-    }
-    // Settings tab switching
-document.querySelectorAll('.tab-button').forEach(button => {
-    button.addEventListener('click', () => {
-        // Remove active from all
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-
-        // Add active to clicked
-        button.classList.add('active');
-        const tabId = button.dataset.tab + '-tab';
-        document.getElementById(tabId).classList.add('active');
-            if (name === 'extras' || name === 'favorites' || name === 'recent' || name === 'games') {
-        // Small delay to ensure DOM is ready after view switch
-        setTimeout(bindAllGameBoxes, 100);
-    }
-    });
-});
-
-        navButtons.forEach(btn => {
-            btn.classList.remove('bg-purple-600', 'text-white');
-            btn.classList.add('text-gray-300');
-            if (btn.dataset.view === name) {
-                btn.classList.add('bg-purple-600', 'text-white');
-                btn.classList.remove('text-gray-300');
+    document.addEventListener('keydown', (e) => {
+        if (localStorage.getItem('panicEnabled') === 'true') {
+            const key = localStorage.getItem('panicKey');
+            if (key && e.key.toUpperCase() === key) {
+                window.location.href = localStorage.getItem('panicUrl') || 'https://docs.google.com';
             }
-        });
-
-        if (name === 'home-page') startShowcase();
-        else clearInterval(showcaseInterval);
-
-        if (name === 'favorites') renderFavorites();
-        if (name === 'recent') renderRecent();
-        if (name === 'games') updateHeartsInMainView();
-        if (name === 'games') {
-    updateHeartsInMainView();
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('input'));
-}
-    };
-
-    navButtons.forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
-
-    const FAVORITES_KEY = 'favoriteGames';
-    const RECENT_KEY = 'recentGames';
-    const MAX_RECENT = 20;
-
-    const getFavorites = () => JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-    const saveFavorites = (favs) => localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
-    const getRecent = () => JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
-    const saveRecent = (rec) => localStorage.setItem(RECENT_KEY, JSON.stringify(rec));
-
-    const createGameBox = (game, isFavorite = false) => {
-        const box = document.createElement('div');
-        box.className = 'game-box';
-        box.dataset.url = game.url;
-        box.dataset.title = game.title;
-        box.dataset.img = game.img;
-
-        box.innerHTML = `
-            <img src="${game.img}" alt="${game.title}" loading="lazy">
-            <div class="game-title">${game.title}</div>
-            <div class="favorite-btn"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></div>
-        `;
-
-        box.addEventListener('click', (e) => {
-            if (e.target.closest('.favorite-btn')) return;
-            gameIframe.src = game.url;
-            gameLoader.classList.add('active');
-            showView('game');
-            setTimeout(() => gameLoader.classList.remove('active'), 5000);
-
-            addToRecent(game);
-
-            if (gameVolumeToggle.checked) {
-                setTimeout(() => {
-                    gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
-                }, 2000);
-            }
-        });
-
-        box.querySelector('.favorite-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleFavorite(game, box);
-        });
-
-        return box;
-    };
-
-    const toggleFavorite = (game, boxElement = null) => {
-        let favorites = getFavorites();
-        const index = favorites.findIndex(f => f.url === game.url);
-
-        let heartIcons;
-        if (boxElement) {
-            heartIcons = [boxElement.querySelector('.favorite-btn i')];
-        } else {
-            heartIcons = document.querySelectorAll(`.game-box[data-url="${game.url}"] .favorite-btn i`);
         }
+    });
 
-        if (index > -1) {
-            favorites.splice(index, 1);
-            heartIcons.forEach(icon => icon.classList.replace('fas', 'far'));
-        } else {
-            favorites.push(game);
-            heartIcons.forEach(icon => icon.classList.replace('far', 'fas'));
-        }
+//  about blank cloaker
+const openInAboutBlank = (sourceUrl = window.location.href) => {
+    if (hasAboutBlankRun) return;
+    hasAboutBlankRun = true;
 
-        saveFavorites(favorites);
-        renderFavorites();
-        renderRecent();
-        updateHeartsInMainView();
-    };
+    // Use custom cloaking if set, otherwise fall back to current page
+    const title = localStorage.getItem('cloakTitle') || document.title;
+    const faviconHref = localStorage.getItem('cloakFavicon') || 
+                       (document.querySelector("link[rel*='icon']")?.href || '');
 
-    const addToRecent = (game) => {
-        let recent = getRecent();
-        recent = recent.filter(r => r.url !== game.url);
-        recent.unshift(game);
-        if (recent.length > MAX_RECENT) recent.pop();
-        saveRecent(recent);
-        renderRecent();
-    };
+    const cloakedWindow = window.open('', '_blank');
 
-    const renderFavorites = () => {
-        const wrapper = document.getElementById('favorites-wrapper');
-        if (!wrapper) return;
-        const grid = wrapper.querySelector('.game-grid') || wrapper;
+    if (!cloakedWindow) {
+        hasAboutBlankRun = false; // Allow retry if popup blocked
+        alert('Popups are blocked! Please allow popups for this site to use about:blank cloaking.');
+        return;
+    }
 
-        grid.innerHTML = '';
+    cloakedWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>${title}</title>
+            ${faviconHref ? `<link rel="icon" href="${faviconHref}" type="image/x-icon">` : ''}
+            <style>
+                body, html { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; }
+                iframe { border:none; width:100%; height:100%; position:absolute; top:0; left:0; }
+            </style>
+        </head>
+        <body>
+            <iframe 
+                src="${sourceUrl}" 
+                frameborder="0" 
+                allowfullscreen 
+                allow="fullscreen; accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+        </body>
+        </html>
+    `);
+    cloakedWindow.document.close();
 
-        const favorites = getFavorites();
+    // Aggressive redirect: wipes history by replacing current tab
+    setTimeout(() => {
+        window.location.replace('https://clever.com/');
+    }, 50); // Slight delay ensures cloaked tab loads first
+};
 
-        if (favorites.length === 0) {
-            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No favorite games yet. Click the heart on a game to add it!</p>';
-            return;
-        }
-
-        const row = document.createElement('div');
-        row.className = 'five-box-row';
-        favorites.forEach(game => {
-            row.appendChild(createGameBox(game, true));
-        });
-        grid.appendChild(row);
-    };
-
-    const renderRecent = () => {
-        const wrapper = document.getElementById('recent-wrapper');
-        if (!wrapper) return;
-        const grid = wrapper.querySelector('.game-grid') || wrapper;
-
-        grid.innerHTML = '';
-
-        const recent = getRecent();
-
-        if (recent.length === 0) {
-            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No recently played games.</p>';
-            return;
-        }
-
-        const row = document.createElement('div');
-        row.className = 'five-box-row';
-        recent.forEach(game => {
-            const isFav = getFavorites().some(f => f.url === game.url);
-            row.appendChild(createGameBox(game, isFav));
-        });
-        grid.appendChild(row);
-    };
-
-    const updateHeartsInMainView = () => {
-        document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
-            const url = box.dataset.url;
-            if (!url || url.includes('placeholder')) return;
-            const isFav = getFavorites().some(f => f.url === url);
-            const heart = box.querySelector('.favorite-btn i');
-            if (heart) {
-                heart.classList.toggle('fas', isFav);
-                heart.classList.toggle('far', !isFav);
-            }
-        });
-    };
-
-document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
-    const game = {
-        url: box.dataset.url,
-        title: box.dataset.title,
-        img: box.dataset.img
-    };
-
-    box.querySelector('.favorite-btn').addEventListener('click', (e) => {
+// Bind to BOTH about:blank buttons
+document.querySelectorAll('#home-about-blank-btn').forEach(btn => {
+    btn?.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        toggleFavorite(game, box);
-    });
-
-    box.addEventListener('click', (e) => {
-        if (e.target.closest('.favorite-btn')) return;
-
-        gameIframe.src = '';
-        gameIframe.src = game.url;
-
-        gameLoader.classList.add('active');
-        gameLoader.querySelector('.main-message').textContent = 'Loading your selected game...';
-
-        showView('game');
-
-        addToRecent(game);
-
-        gameIframe.onload = () => {
-            gameLoader.classList.remove('active');
-        };
-
-        if (gameVolumeToggle.checked) {
-            gameIframe.onload = () => {
-                setTimeout(() => {
-                    try {
-                        gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
-                    } catch (err) {}
-                }, 1500);
-                gameLoader.classList.remove('active');
-            };
-        }
+        openInAboutBlank(window.location.href);
     });
 });
 
+// Also bind the sidebar one if it exists
+document.querySelector('#sidebar #home-about-blank-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    openInAboutBlank(window.location.href);
+});
+
+    // Fullscreen & new tab buttons
     document.getElementById('fullscreen-btn-game')?.addEventListener('click', () => {
-        if (gameIframe.requestFullscreen) gameIframe.requestFullscreen();
+        gameIframe.requestFullscreen?.();
     });
 
     document.getElementById('newtab-btn-game')?.addEventListener('click', () => {
         if (gameIframe.src) window.open(gameIframe.src, '_blank');
     });
 
-    exportSettingsBtn.addEventListener('click', () => {
-        const data = {
-            localStorage: { ...localStorage }
-        };
-        const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+    // Export / Import / Reset
+    document.getElementById('export-settings-btn')?.addEventListener('click', () => {
+        const data = { localStorage: { ...localStorage } };
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -717,91 +635,34 @@ document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box =
         URL.revokeObjectURL(url);
     });
 
-    importSettingsInput.addEventListener('change', (e) => {
+    document.getElementById('import-settings-input')?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
             try {
                 const data = JSON.parse(ev.target.result);
-                if (!data.localStorage) throw new Error("Invalid backup");
+                if (!data.localStorage) throw new Error();
                 localStorage.clear();
                 Object.entries(data.localStorage).forEach(([k, v]) => localStorage.setItem(k, v));
-                importStatus.textContent = "Imported successfully! Reloading...";
-                importStatus.classList.remove('hidden');
-                importStatus.className = "text-sm mt-3 text-center text-green-400 block";
-                setTimeout(() => window.location.reload(), 1500);
-            } catch (err) {
-                importStatus.textContent = "Invalid backup file";
-                importStatus.classList.remove('hidden');
-                importStatus.className = "text-sm mt-3 text-center text-red-400 block";
+                alert('Imported successfully! Reloading...');
+                setTimeout(() => location.reload(), 1000);
+            } catch {
+                alert('Invalid backup file');
             }
         };
         reader.readAsText(file);
     });
 
-    resetAllDataBtn.addEventListener('click', () => {
-        if (confirm("This will delete ALL saved data. Continue?")) {
+    document.getElementById('reset-all-data-btn')?.addEventListener('click', () => {
+        if (confirm('This will delete ALL saved data. Continue?')) {
             localStorage.clear();
-            setTimeout(() => window.location.reload(), 1000);
+            setTimeout(() => location.reload(), 500);
         }
     });
 
-    const consentBanner = document.getElementById('consent-banner');
-    const acceptAdsBtn = document.getElementById('accept-ads-btn');
-    const rejectAdsBtn = document.getElementById('reject-ads-btn');
-
-    const hideConsentBanner = () => {
-        if (consentBanner) consentBanner.style.display = 'none';
-    };
-
-    const loadGoogleAds = () => {
-        if (document.querySelector('script[src*="adsbygoogle.js"]')) return;
-        const script = document.createElement('script');
-        script.async = true;
-        script.crossOrigin = "anonymous";
-        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7164184929971692";
-        document.head.appendChild(script);
-    };
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'analytics_storage': 'denied',
-        'ad_user_data': 'denied',
-        'ad_personalization': 'denied'
-    });
-
-    const adsConsent = localStorage.getItem('ads_consent');
-
-    if (adsConsent === 'granted') {
-        gtag('consent', 'update', { 'ad_storage': 'granted', 'analytics_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
-        loadGoogleAds();
-        hideConsentBanner();
-    } else if (adsConsent === 'denied') {
-        hideConsentBanner();
-    } else {
-        if (consentBanner) consentBanner.style.display = 'flex';
-    }
-
-    acceptAdsBtn?.addEventListener('click', () => {
-        localStorage.setItem('ads_consent', 'granted');
-        gtag('consent', 'update', { 'ad_storage': 'granted', 'analytics_storage': 'granted', 'ad_user_data': 'granted', 'ad_personalization': 'granted' });
-        loadGoogleAds();
-        hideConsentBanner();
-    });
-
-    rejectAdsBtn?.addEventListener('click', () => {
-        localStorage.setItem('ads_consent', 'denied');
-        hideConsentBanner();
-    });
-
-    const fpsCounter = document.getElementById('fps-counter');
-    const fpsValue = document.getElementById('fps-value');
-    const fpsToggle = document.getElementById('fps-counter-toggle');
-
-    if (fpsCounter && fpsValue && fpsToggle) {
+    // FPS Counter
+    if (fpsToggle && fpsValue) {
         let frames = 0;
         let lastTime = performance.now();
         let rafId = null;
@@ -818,197 +679,37 @@ document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box =
             rafId = requestAnimationFrame(updateFPS);
         };
 
-        const toggleFPSCounter = (enabled) => {
-            if (enabled) {
-                fpsCounter.style.display = 'block';
-                if (!rafId) rafId = requestAnimationFrame(updateFPS);
-            } else {
-                fpsCounter.style.display = 'none';
-                if (rafId) {
-                    cancelAnimationFrame(rafId);
-                    rafId = null;
-                }
-            }
+        const toggleFPS = (enabled) => {
+            document.getElementById('fps-counter').style.display = enabled ? 'block' : 'none';
+            if (enabled && !rafId) rafId = requestAnimationFrame(updateFPS);
+            else if (!enabled && rafId) cancelAnimationFrame(rafId);
             localStorage.setItem('fpsCounterEnabled', enabled);
         };
 
-        const savedFpsSetting = localStorage.getItem('fpsCounterEnabled');
-        const isEnabled = savedFpsSetting !== null ? savedFpsSetting === 'true' : true;
+        const enabled = localStorage.getItem('fpsCounterEnabled') !== 'false';
+        fpsToggle.checked = enabled;
+        toggleFPS(enabled);
 
-        fpsToggle.checked = isEnabled;
-        toggleFPSCounter(isEnabled);
-
-        fpsToggle.addEventListener('change', () => {
-            toggleFPSCounter(fpsToggle.checked);
-        });
+        fpsToggle.addEventListener('change', () => toggleFPS(fpsToggle.checked));
     }
 
-    document.querySelectorAll('.sidebar-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+    // Tab switching in settings
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            button.classList.add('active');
+            document.getElementById(button.dataset.tab + '-tab').classList.add('active');
         });
     });
 
-    document.querySelector('.sidebar-btn[data-view="home-page"]').classList.add('active');
+    // Navigation
+    navButtons.forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
 
+    // Initial render
     showView('home-page');
     startShowcase();
     renderFavorites();
     renderRecent();
     updateHeartsInMainView();
-    bindAllGameBoxes();
-});
-// Bind click events to all .game-box elements (used for main games + extras)
-const bindGameBoxEvents = (container = document.body) => {
-    container.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
-        box.dataset.bound = 'true'; // Prevent double-binding
-
-        const game = {
-            url: box.dataset.url,
-            title: box.dataset.title || 'Link',
-            img: box.dataset.img || ''
-        };
-
-        box.addEventListener('click', (e) => {
-            if (e.target.closest('.favorite-btn')) return; // Ignore if clicking favorite (extras don't have this)
-
-            // Load in the game iframe (same as games)
-            gameIframe.src = '';
-            setTimeout(() => { gameIframe.src = game.url; }, 10);
-
-            gameLoader.classList.add('active');
-            gameLoader.querySelector('.main-message').textContent = `Loading ${game.title}...`;
-
-            showView('game');
-
-            gameIframe.onload = () => {
-                gameLoader.classList.remove('active');
-            };
-        });
-    });
-};
-
-bindGameBoxEvents(document.getElementById('extras-view'));
-
-const bindAllGameBoxes = () => {
-    document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
-        box.dataset.bound = 'true';
-
-        const url = box.dataset.url;
-        const title = box.dataset.title || 'Page';
-
-        box.addEventListener('click', (e) => {
-
-            if (e.target.closest('.favorite-btn')) return;
-
-            gameIframe.src = '';
-            gameIframe.src = url;
-
-            gameLoader.classList.add('active');
-            gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
-
-            showView('game');
-
-            gameIframe.onload = () => {
-                gameLoader.classList.remove('active');
-            };
-
-            gameIframe.onerror = () => {
-                gameLoader.classList.remove('active');
-                gameLoader.querySelector('.main-message').textContent = 'Failed to load. Try again or report on Discord.';
-            };
-        });
-    });
-};
-document.addEventListener('DOMContentLoaded', () => {
-    const gameIframe = document.getElementById('game-iframe');
-    const gameLoader = document.getElementById('game-loader');
-
-    const bindGameBoxes = () => {
-        document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
-            box.dataset.bound = 'true';
-
-            box.addEventListener('click', (e) => {
-                if (e.target.closest('.favorite-btn')) return;
-
-                const url = box.dataset.url;
-                const title = box.dataset.title || 'Page';
-
-                gameIframe.src = '';
-                gameIframe.src = url;
-
-                gameLoader.classList.add('active');
-                gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
-
-                showView('game');
-
-                gameIframe.onload = () => {
-                    gameLoader.classList.remove('active');
-                };
-            });
-        });
-    };
-
-    bindGameBoxes();
-
-    const originalShowView = window.showView;
-    if (originalShowView) {
-        window.showView = function(name) {
-            originalShowView(name);
-            setTimeout(bindGameBoxes, 150);
-        };
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const gameIframe = document.getElementById('game-iframe');
-    const gameLoader = document.getElementById('game-loader');
-
-    if (!gameIframe || !gameLoader) {
-        console.error('Required elements #game-iframe or #game-loader not found');
-        return;
-    }
-
-    const bindGameBoxes = () => {
-        document.querySelectorAll('.game-box[data-url]').forEach(box => {
-
-            box.onclick = null;
-
-            box.onclick = (e) => {
-
-                if (e.target.closest('.favorite-btn')) return;
-
-                const url = box.dataset.url;
-                const title = box.dataset.title || 'Content';
-
-                if (!url) return;
-
-                gameIframe.src = url;
-
-                gameLoader.classList.add('active');
-                gameLoader.querySelector('.main-message').textContent = `Loading ${title}...`;
-
-                showView('game');
-
-                gameIframe.onload = () => {
-                    gameLoader.classList.remove('active');
-                };
-
-                gameIframe.onerror = () => {
-                    gameLoader.classList.remove('active');
-                    gameLoader.querySelector('.main-message').textContent = 'Load failed. Check the link.';
-                };
-            };
-        });
-    };
-
-    bindGameBoxes();
-
-    const originalShowView = window.showView;
-    window.showView = function(name) {
-        if (originalShowView) originalShowView.call(this, name);
-
-        setTimeout(bindGameBoxes, 100);
-    };
 });

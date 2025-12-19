@@ -1,199 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SYSTEM CRITICAL FAILURE: 404 - ERROR SYMBOL</title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | StudyThemes</title>
+    <meta property="og:title" content="404 - Page Not Found | StudyThemes" />
+    <meta property="og:description" content="This page doesn't exist. Also if u read this your a real one." />
+    <link rel="icon" type="image/png" href="games/img/imp-games.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
-        
-        @font-face {
-            font-family: 'Inter';
-            src: local('Inter Regular'), url('images/Inter-Regular.woff2') format('woff2');
-            font-weight: 400;
-            font-style: normal;
-        }
-
-        * {
-            box-sizing: border-box; 
-        }
-
         body {
-            
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            font-family: 'Inter', system-ui, sans-serif; 
-            height: 100vh;
-            width: 100vw;
+            min-height: 100vh;
+            background: #0f011a;
+            color: #fff;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            color: #d0eaff;
-
-            background: radial-gradient(circle at center, #000000 0%, #000000 100%); 
-            position: relative;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
         }
-
-
-        #main-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 2;
-            text-align: center;
-            padding-top: 40px; 
-        }
-
-        .loader-spinny {
-            width: 160px;
-            height: 140px;
-            position: relative;
-            margin-bottom: 25px;
-            
-            filter: drop-shadow(0 0 10px #ff5722);
-            animation: glitch_shake 0.15s steps(2, end) infinite; 
-        }
-
-        .spinner-ring { 
+        .bg-animation {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            
-            background: transparent;
-
-            border-bottom: 15px solid #ff5722;
-            border-left: 15px solid transparent; 
-            border-right: 15px solid transparent; 
-            
-            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-            -webkit-clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-            
-            border-radius: 10px; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e0033 0%, #0a001a 50%, #00111a 100%);
+            animation: gradient 15s ease infinite;
+            z-index: 1;
         }
-        
-        .loader-spinny::before {
-            content: '!';
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .shapes {
             position: absolute;
-            top: 25%;
-            left: 50%;
-            transform: translate(-50%, 0%);
-            font-size: 80px;
-            font-weight: 900;
-            color: #ff5722;
-            z-index: 3;
-            line-height: 0.8;
-            animation: pulse 2s ease-in-out infinite alternate;
-        }
-        
-        .spinner-ring:nth-child(2) {
-            display: none;
-        }
-
-        #error-code-display { 
-            font-size: 80px; 
-            font-weight: 900;
-            letter-spacing: 10px;
-            text-transform: uppercase;
-            color: #e74c3c; 
-            margin-top: 15px;
-            text-shadow:
-                0 0 15px #e74c3c,
-                0 0 25px #c0392b;
-        }
-
-        @keyframes glitch_shake {
-            0% { transform: translate(2px, -2px); }
-            50% { transform: translate(-2px, 2px); }
-            100% { transform: translate(2px, -2px); }
-        }
-        
-        @keyframes pulse {
-            0% { 
-                opacity: 0.7;
-                text-shadow: 0 0 5px #ff5722;
-            }
-            100% {
-                opacity: 1.0;
-                text-shadow: 0 0 20px #ff5722, 0 0 40px #e74c3c;
-            }
-        }
-
-        #sub-message {
-            font-size: 20px;
-            color: #f39c12; 
-            margin-bottom: 30px;
-        }
-
-        center {
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
             z-index: 2;
         }
-        
-        .action-link {
+        .shape {
+            position: absolute;
+            background: linear-gradient(45deg, rgba(139,92,246,0.3), rgba(236,72,153,0.3));
+            border-radius: 50%;
+            filter: blur(40px);
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(300px, -300px) rotate(360deg); }
+        }
+.container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem; /* Better spacing between elements */
+}
+
+.container h2 {
+    margin: 0;
+    font-size: 4rem;
+    color: #e2e8f0;
+}
+
+.container p {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #cbd5e1;
+    max-width: 720px;
+    line-height: 1.8;
+}
+
+@media (max-width: 768px) {
+    .container h2 { font-size: 3rem; }
+    .container p { font-size: 1.4rem; }
+}
+        .code {
+            font-size: 16rem;
+            font-weight: 900;
+            margin: 0;
+            background: linear-gradient(to right, #8b5cf6, #ec4899, #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 60px rgba(139,92,246,0.5);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 60px rgba(139,92,246,0.5); }
+            to { text-shadow: 0 0 100px rgba(236,72,153,0.8); }
+        }
+        h2 {
+            font-size: 4rem;
+            margin: 1.5rem 0;
+            color: #e2e8f0;
+        }
+        p {
+            font-size: 1.6rem;
+            color: #cbd5e1;
+            max-width: 700px;
+            margin: 1.5rem auto;
+            line-height: 1.7;
+        }
+        .btn {
             display: inline-block;
-            padding: 12px 24px;
-            margin: 10px;
-            text-decoration: none;
+            padding: 1.2rem 3rem;
+            margin: 1rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            border-radius: 8px;
-            transition: all 0.3s;
-            filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.5));
+            background: linear-gradient(to right, #8b5cf6, #ec4899);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(139,92,246,0.4);
         }
-
-        .primary-link {
-            background-color: #e74c3c; 
-            color: #ffffff;
-            border: 2px solid #c0392b;
+        .btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(139,92,246,0.6);
         }
-        
-        .primary-link:hover {
-            background-color: #c0392b;
+        .links {
+            margin-top: 3rem;
         }
-
-        .secondary-link {
-            background-color: transparent;
-            color: #bdc3c7; 
-            border: 2px solid #555;
+        .links a {
+            color: #a78bfa;
+            margin: 0 1.2rem;
+            font-size: 1.2rem;
+            text-decoration: underline;
         }
-
-        .secondary-link:hover {
-            border-color: #bdc3c7;
+        .links a:hover {
+            color: #ec4899;
+        }
+        @media (max-width: 768px) {
+            .code { font-size: 10rem; }
+            h2 { font-size: 2.8rem; }
+            p { font-size: 1.3rem; }
+            
         }
     </style>
 </head>
-
 <body>
-    <center id="main-content">
-        <div class="loader-spinny">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-        </div>
+    <div class="bg-animation"></div>
+    <div class="shapes">
+        <div class="shape" style="width:400px;height:400px;top:10%;left:10%;animation-delay:0s;"></div>
+        <div class="shape" style="width:600px;height:600px;top:50%;right:10%;animation-delay:5s;"></div>
+        <div class="shape" style="width:300px;height:300px;bottom:20%;left:30%;animation-delay:10s;"></div>
+    </div>
 
-        <p id="error-code-display" data-original-text="ERROR 404">ERROR 404</p>
-        <p id="sub-message">ERROR 404: Go Back To The Site.</p>
-        
-        <p class="text-lg text-gray-300 mt-2 max-w-sm" style="color: #ccc;">
-            Click "Go Home" cuz you ain't ment to be here.
-            Try checking the URL or head back to the homepage.
+    <div class="container">
+        <h1 class="code">404</h1>
+        <h2>Page Not Found</h2>
+        <p>
+            The page you're looking for doesn't exist or has been moved.
+            No worries go click the buttonn to go back
+            If you think this is an error, please let us know.
         </p>
 
-        <div>
-             <a href="https://iisilly1059.github.io/site/" class="action-link primary-link">
-                Go Home
-             </a>
-             <a href="https://iisilly1059.github.io/site/games" class="action-link primary-link">
-                Go To Games
-             </a>
-        </div>
-        
-    </center>
+        <a href="https://studythemes.com/" class="btn">Back to Home</a>
 
-    <script>
-        // No JavaScript is needed.
-    </script>
+    </div>
 </body>
 </html>
