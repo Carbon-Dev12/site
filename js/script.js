@@ -1,4 +1,3 @@
-// if you see alot of "//" its because i dont have to struggle finding stuff
 window.addEventListener('load', () => {
     // ==================== DOM ELEMENTS ====================
     const views = {
@@ -551,68 +550,49 @@ window.addEventListener('load', () => {
         }
     });
 
-//  about blank cloaker
-const openInAboutBlank = (sourceUrl = window.location.href) => {
-    if (hasAboutBlankRun) return;
-    hasAboutBlankRun = true;
+    // ==================== MISC FEATURES ====================
+    // About:blank cloaking
+    const openInAboutBlank = (sourceUrl) => {
+        if (hasAboutBlankRun) return;
+        hasAboutBlankRun = true;
 
-    // Use custom cloaking if set, otherwise fall back to current page
-    const title = localStorage.getItem('cloakTitle') || document.title;
-    const faviconHref = localStorage.getItem('cloakFavicon') || 
-                       (document.querySelector("link[rel*='icon']")?.href || '');
+        const title = document.title;
+        const faviconLink = document.querySelector("link[rel*='icon']");
+        const faviconHref = faviconLink ? faviconLink.href : '';
 
-    const cloakedWindow = window.open('', '_blank');
+        const cloakedWindow = window.open('', '_blank');
+        if (!cloakedWindow) {
+            hasAboutBlankRun = false;
+            alert('Popups are blocked! Please allow popups for this site.');
+            return;
+        }
 
-    if (!cloakedWindow) {
-        hasAboutBlankRun = false; // Allow retry if popup blocked
-        alert('Popups are blocked! Please allow popups for this site to use about:blank cloaking.');
-        return;
-    }
+        cloakedWindow.location.href = 'about:blank';
+        cloakedWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>${title}</title>
+                ${faviconHref ? `<link rel="icon" href="${faviconHref}">` : ''}
+                <style>body, html { margin:0; padding:0; height:100%; overflow:hidden; }</style>
+            </head>
+            <body>
+                <iframe src="${sourceUrl}" frameborder="0" allowfullscreen
+                    style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;">
+                </iframe>
+            </body>
+            </html>
+        `);
+        cloakedWindow.document.close();
 
-    cloakedWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>${title}</title>
-            ${faviconHref ? `<link rel="icon" href="${faviconHref}" type="image/x-icon">` : ''}
-            <style>
-                body, html { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; }
-                iframe { border:none; width:100%; height:100%; position:absolute; top:0; left:0; }
-            </style>
-        </head>
-        <body>
-            <iframe 
-                src="${sourceUrl}" 
-                frameborder="0" 
-                allowfullscreen 
-                allow="fullscreen; accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture">
-            </iframe>
-        </body>
-        </html>
-    `);
-    cloakedWindow.document.close();
+        setTimeout(() => window.location.replace('https://clever.com/'), 10);
+    };
 
-    // Aggressive redirect: wipes history by replacing current tab
-    setTimeout(() => {
-        window.location.replace('https://clever.com/');
-    }, 50); // Slight delay ensures cloaked tab loads first
-};
-
-// Bind to BOTH about:blank buttons
-document.querySelectorAll('#home-about-blank-btn').forEach(btn => {
-    btn?.addEventListener('click', (e) => {
+    document.getElementById('home-about-blank-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
-        e.stopPropagation();
         openInAboutBlank(window.location.href);
     });
-});
-
-// Also bind the sidebar one if it exists
-document.querySelector('#sidebar #home-about-blank-btn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    openInAboutBlank(window.location.href);
-});
 
     // Fullscreen & new tab buttons
     document.getElementById('fullscreen-btn-game')?.addEventListener('click', () => {
