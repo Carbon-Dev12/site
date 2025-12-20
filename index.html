@@ -31,6 +31,14 @@
     <canvas id="particle-canvas"></canvas>
     <div class="content">
 <div class="flex h-screen">
+    <!-- Mobile Hamburger Menu Button -->
+    <button id="menu-toggle" class="lg:hidden fixed top-4 left-4 z-50 w-12 h-12 bg-gray-900 bg-opacity-80 backdrop-blur-xl rounded-xl flex items-center justify-center text-white shadow-xl border border-purple-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-20 bg-gray-900 bg-opacity-80 backdrop-blur-xl border-r border-purple-500/30 shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col items-center">
     <nav class="flex-1 w-full py-8">
         <ul class="space-y-6 flex flex-col items-center">
@@ -1019,50 +1027,47 @@
                 <button class="tab-button px-6 py-3 rounded-full text-lg font-medium transition-all" data-tab="general">General</button>
             </div>
 
-<!-- Appearance Tab -->
-<div id="appearance-tab" class="tab-panel active space-y-10">
-    <div class="settings-card">
-        <h2 class="text-3xl font-bold mb-8">Appearance</h2>
+        <div id="appearance-tab" class="tab-panel active space-y-10">
+            <div class="settings-card">
+                <h2 class="text-3xl font-bold mb-8">Appearance</h2>
         
-        <!-- Theme Selection (Dropdown) -->
-        <div class="setting-item mb-10">
-            <label class="block text-xl font-semibold mb-6">Theme</label>
-            <select id="theme-select" class="w-full p-4 rounded-lg bg-gray-900 border border-gray-600 text-lg">
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="amoled">Amoled</option>
-                <option value="matrix">Matrix</option>
-                <option value="blood">Blood</option>
-                <option value="sunset">Sunset</option>
-                <option value="forest">Forest</option>
-                <option value="cyberpunk">Cyberpunk</option>
-                <option value="midnight">Midnight</option>
-                <option value="purplehaze">Purplehaze</option>
-                <option value="coffee">Coffee</option>
-                <option value="ocean">Ocean</option>
-            </select>
+                <div class="setting-item mb-10">
+                    <label class="block text-xl font-semibold mb-6">Theme</label>
+                    <select id="theme-select" class="w-full p-4 rounded-lg bg-gray-900 border border-gray-600 text-lg">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                        <option value="amoled">Amoled</option>
+                        <option value="matrix">Matrix</option>
+                        <option value="blood">Blood</option>
+                        <option value="sunset">Sunset</option>
+                        <option value="forest">Forest</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                        <option value="midnight">Midnight</option>
+                        <option value="purplehaze">Purplehaze</option>
+                        <option value="coffee">Coffee</option>
+                        <option value="ocean">Ocean</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="block text-xl font-semibold mb-6">Background Effects</label>
+                    <div class="flex items-center justify-between mb-8">
+                        <span class="text-lg">Particles</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="particles-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-lg font-medium mb-3">Particle Density</label>
+                        <input type="range" id="particle-density" min="10" max="200" value="50" class="w-full h-3 rounded-lg bg-gray-700 cursor-pointer">
+                        <span id="particle-density-value" class="block text-center mt-3 text-lg font-medium">50</span>
+                        <p class="text-center text-gray-400 mt-8">idk why but if you decrease or increase it speeds uo the particals.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Background Effects -->
-        <div class="setting-item">
-            <label class="block text-xl font-semibold mb-6">Background Effects</label>
-            <div class="flex items-center justify-between mb-8">
-                <span class="text-lg">Particles</span>
-                <label class="toggle">
-                    <input type="checkbox" id="particles-toggle" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div>
-                <label class="block text-lg font-medium mb-3">Particle Density</label>
-                <input type="range" id="particle-density" min="10" max="200" value="50" class="w-full h-3 rounded-lg bg-gray-700 cursor-pointer">
-                <span id="particle-density-value" class="block text-center mt-3 text-lg font-medium">50</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-    <!-- Performance Tab -->
             <div id="performance-tab" class="tab-panel space-y-10">
                 <div class="settings-card">
                     <h2 class="text-3xl font-bold mb-8">Performance Options</h2>
@@ -1092,21 +1097,19 @@
                 </div>
             </div>
 
-    <!-- Audio Tab -->
-    <div id="audio-tab" class="tab-panel space-y-10">
-        <div class="settings-card">
-            <h2 class="text-3xl font-bold mb-8">Game Audio</h2>
-            <div class="setting-item flex items-center justify-between">
-                <span class="text-xl font-semibold">Mute Game Audio by Default</span>
-                <label class="toggle">
-                    <input type="checkbox" id="game-volume-toggle">
-                    <span class="slider"></span>
-                </label>
+            <div id="audio-tab" class="tab-panel space-y-10">
+                <div class="settings-card">
+                    <h2 class="text-3xl font-bold mb-8">Game Audio</h2>
+                    <div class="setting-item flex items-center justify-between">
+                        <span class="text-xl font-semibold">Mute Game Audio by Default</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="game-volume-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Panic Tab -->
     <div id="panic-tab" class="tab-panel space-y-10">
         <div class="settings-card">
             <h2 class="text-3xl font-bold mb-8">Panic Key</h2>

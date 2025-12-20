@@ -1,3 +1,4 @@
+// theres alot of "//" cuz i aint tryna read all of this
 window.addEventListener('load', () => {
     // ==================== DOM ELEMENTS ====================
     const views = {
@@ -329,7 +330,7 @@ clearSearchBtn.addEventListener('click', () => {
     };
 
     // ==================== TYPING EFFECT ====================
-    const words = ['freedom.', 'beauty.', 'peace.', 'amazement.', 'Flourishment.', 'creativity.', 'Success.'];
+    const words = ['Freedom.', 'Beauty.', 'Peace.', 'Wonder.', 'Abundance.', 'Creativity.', 'Success.', 'Purpose.', 'Properity.'];
     let wordIndex = 0, charIndex = 0, isDeleting = false;
 
     const type = () => {
@@ -725,3 +726,31 @@ clearSearchBtn.addEventListener('click', () => {
     renderRecent();
     updateHeartsInMainView();
 });
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuClose = document.getElementById('menu-close');
+    const mainContent = document.getElementById('main-content');
+
+    // Open sidebar
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        // Optional: add overlay blur or push content
+        mainContent.classList.add('lg:ml-0');
+    });
+
+    // Close sidebar
+    menuClose.addEventListener('click', () => {
+        sidebar.classList.remove('translate-x-0');
+        sidebar.classList.add('-translate-x-full');
+    });
+
+    // Optional: Close when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth < 1024) { // lg breakpoint
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+    });

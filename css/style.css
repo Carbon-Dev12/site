@@ -14,12 +14,12 @@ html {
                 box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 :root {
-    --color-primary-bg: #1a1a2e;
-    --color-secondary-bg: #1f2937;
-    --color-accent-main: #8b5cf6;
-    --color-accent-hover: #7c3aed;
+    --color-primary-bg: #000000;
+    --color-secondary-bg: #000000;
+    --color-accent-main: #ffffff;
+    --color-accent-hover: #ffffff;
     --color-text: #f3f4f6;
-    --color-border: #4b5563;
+    --color-border: #ffffff;
 }
 body {
     margin: 0; padding: 0; font-family: 'Inter', sans-serif;
@@ -254,14 +254,13 @@ input:checked + .slider:before { transform: translateX(24px); }
 .accent-word { color: var(--color-accent-main); font-weight: 900; display: inline-block; }
 .play-btn, .about-blank-btn {
     background-color: var(--color-accent-main); color: white; font-weight: bold;
-    border-radius: 9999px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 9999px; box-shadow: 0 10px 30px rgba(255, 255, 255, 0.4);
     transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
     position: relative; overflow: hidden;
     will-change: transform, box-shadow;
 }
 .play-btn { padding: 1.25rem 3rem; font-size: 1.8rem; }
 .about-blank-btn { padding: 0.75rem 2rem; font-size: 1rem; position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); }
-@media (max-width: 768px) { .about-blank-btn { position: static; transform: none; margin-top: 1rem; } }
 .play-btn:hover, .about-blank-btn:hover {
     background-color: var(--color-accent-hover);
     transform: translateY(-2px);
@@ -288,7 +287,7 @@ input:checked + .slider:before { transform: translateX(24px); }
 }
 #game-search:focus { 
     border-color: var(--color-text); 
-    box-shadow: 0 0 20px rgba(139,92,246,0.6) !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6) !important;
     transform: scale(1.02);
 }
 .search-icon { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--color-accent-main); font-size: 1.1rem; }
@@ -300,7 +299,7 @@ body { background: var(--color-primary-bg) !important; }
     background: rgba(30, 30, 60, 0.25) !important;
     backdrop-filter: blur(14px) !important;
     -webkit-backdrop-filter: blur(14px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgb(255, 255, 255) !important;
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.37),
         0 0 20px rgba(139, 92, 246, 0.15) !important;
@@ -315,12 +314,12 @@ body { background: var(--color-primary-bg) !important; }
     transform: translateY(-8px) !important;
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.5),
-        0 0 30px rgba(139, 92, 246, 0.3) !important;
+        0 0 30px rgba(255, 255, 255, 0.3) !important;
 }
 .game-box {
     transition: opacity 0.4s ease, transform 0.4s ease;
 }
-[data-theme="dark"]       { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#8b5cf6; --color-accent-hover:#a78bfa; --color-text:#e0e7ff; --color-text-muted:#94a3b8; --color-border:#1e293b; }
+[data-theme="dark"]       { --color-primary-bg:#000000; --color-secondary-bg:#000000; --color-accent-main:#ffffff; --color-accent-hover:#ffffff; --color-text:#ffffff; --color-text-muted:#ffffff; --color-border:#ffffff; }
 [data-theme="light"]      { --color-primary-bg:#fafafa; --color-secondary-bg:#ffffff; --color-accent-main:#6366f1; --color-accent-hover:#4f46e5; --color-text:#0f172a; --color-text-muted:#64748b; --color-border:#e2e8f0; }
 [data-theme="amoled"]     { --color-primary-bg:#000000; --color-secondary-bg:#110000; --color-accent-main:#ff2e63; --color-accent-hover:#ff477e; --color-text:#ffffff; --color-text-muted:#aaaaaa; --color-border:#000000; }
 [data-theme="matrix"]     { --color-primary-bg:#050a05; --color-secondary-bg:#0a140a; --color-accent-main:#00ff41; --color-accent-hover:#00ff80; --color-text:#00ff41; --color-text-muted:#00cc33; --color-border:#003300; }
@@ -452,10 +451,6 @@ html.loaded #home-page-view {
     transition: all 0.3s ease;
 }
 
-.settings-category:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
-}
 
 .settings-category h2 {
     font-size: 1.8rem;
@@ -593,7 +588,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .save-btn.bg-red-600:hover {
-    background: #ef4444 !important;
+    background: #ff0000 !important;
 }
 #games-view,
 #settings-view,
@@ -628,7 +623,7 @@ body::-webkit-scrollbar {
     z-index: 10;
 }
 .game-box:hover .favorite-btn { opacity: 1; }
-.favorite-btn i { font-size: 14px; color: #fff; }
+.favorite-btn i { font-size: 14px; color: #ff00b3; }
 .favorite-btn.favorited i { color: #ff006e; }
 .favorite-btn.favorited::before {
     content: '';
@@ -1304,6 +1299,7 @@ body.perf-mode .game-box:hover {
 }
 #sidebar {
     width: 80px !important;
+    border-right: 2px solid #ffffff !important;
 }
 .sidebar-btn {
     background: transparent !important;
@@ -1338,6 +1334,7 @@ body.perf-mode .game-box:hover {
 }
 #sidebar {
     width: 80px !important;
+    background: #000000 !important;
 }
 
 .sidebar-btn,
@@ -1367,7 +1364,7 @@ body.perf-mode .game-box:hover {
 .sidebar-btn.active,
 .nav-button.active {
     color: #8b5cf6 !important;
-    background: rgba(139, 92, 246, 0.15) !important;
+    background: rgba(0, 0, 0, 0.15) !important;
     border-radius: 12px;
 }
 
@@ -1385,8 +1382,8 @@ body.perf-mode .game-box:hover {
 }
 
 #theme-select {
-    background-color: rgba(30, 30, 50, 0.8); /* Dark semi-transparent to match your cards */
-    backdrop-filter: blur(10px); /* Nice glassy effect like your other elements */
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1405,22 +1402,20 @@ body.perf-mode .game-box:hover {
     box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
 }
 
-/* Ensure text is always readable in dark mode */
 #theme-select option {
-    background-color: #1a1a2e; /* Your primary dark bg */
-    color: #e0e7ff; /* Your text color */
-}
-/* WAY BETTER Quote Fade-In Animation */
-.quote-container {
-    opacity: 0;                    /* Start invisible */
-    transform: translateY(40px) scale(0.95); /* Start lower + slightly smaller */
-    will-change: opacity, transform; /* Super smooth performance */
-    animation: premiumFadeIn 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Elegant easing */
-    animation-delay: 1.2s;         /* Perfect sync with typewriter */
-    text-shadow: 0 0 15px rgba(139, 92, 246, 0.4); /* Subtle purple glow */
+    background-color: #000000;
+    color: #e0e7ff;
 }
 
-/* The magic keyframes */
+.quote-container {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    will-change: opacity, transform;
+    animation: premiumFadeIn 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    animation-delay: 1.2s;
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
 @keyframes premiumFadeIn {
     0% {
         opacity: 0;
@@ -1428,7 +1423,7 @@ body.perf-mode .game-box:hover {
     }
     60% {
         opacity: 0.7;
-        transform: translateY(10px) scale(1.02); /* Mid-way glow + slight overshoot */
+        transform: translateY(10px) scale(1.02);
     }
     100% {
         opacity: 1;
@@ -1436,7 +1431,6 @@ body.perf-mode .game-box:hover {
     }
 }
 
-/* Extra polish for the quote text */
 #dynamic-quote {
     font-style: italic;
     font-size: 1.8rem;
@@ -1457,7 +1451,7 @@ body.perf-mode .game-box:hover {
         font-size: 2.4rem;
     }
 }
-/* Clear "X" Button */
+
 .clear-search-btn {
     position: absolute;
     right: 1.5rem;
@@ -1491,4 +1485,16 @@ body.perf-mode .game-box:hover {
 
 .clear-search-btn i {
     font-size: 1.1rem;
+}
+.about-blank-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  margin: 0;
 }
