@@ -196,14 +196,6 @@ html, body { background: #0b1120 !important; }
     display: none !important;
 }
 .hidden-view { display: none !important; }
-.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.theme-option {
-    padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-    font-size: 14px; text-align: center; border: 1px solid var(--color-border);
-    background-color: var(--color-secondary-bg);
-}
-.theme-option:hover { background: var(--color-accent-main); color: white; transform: scale(1.05); }
-.theme-option.active { background: var(--color-accent-main); color: white; font-weight: bold; }
 .theme-option:focus-visible { outline: 3px solid var(--color-accent-main); outline-offset: 4px; }
 #game-view { flex-grow: 1; display: flex; flex-direction: column; background-color: var(--color-secondary-bg); position: relative; }
 #game-iframe {
@@ -1390,4 +1382,113 @@ body.perf-mode .game-box:hover {
     background: rgba(139, 92, 246, 0.25) !important;
     border-radius: 16px;
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+#theme-select {
+    background-color: rgba(30, 30, 50, 0.8); /* Dark semi-transparent to match your cards */
+    backdrop-filter: blur(10px); /* Nice glassy effect like your other elements */
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+#theme-select:hover {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    background-color: rgba(40, 40, 70, 0.8);
+}
+
+#theme-select:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+}
+
+/* Ensure text is always readable in dark mode */
+#theme-select option {
+    background-color: #1a1a2e; /* Your primary dark bg */
+    color: #e0e7ff; /* Your text color */
+}
+/* WAY BETTER Quote Fade-In Animation */
+.quote-container {
+    opacity: 0;                    /* Start invisible */
+    transform: translateY(40px) scale(0.95); /* Start lower + slightly smaller */
+    will-change: opacity, transform; /* Super smooth performance */
+    animation: premiumFadeIn 1.2s cubic-bezier(0.25, 0.8, 0.25, 1) forwards; /* Elegant easing */
+    animation-delay: 1.2s;         /* Perfect sync with typewriter */
+    text-shadow: 0 0 15px rgba(139, 92, 246, 0.4); /* Subtle purple glow */
+}
+
+/* The magic keyframes */
+@keyframes premiumFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    60% {
+        opacity: 0.7;
+        transform: translateY(10px) scale(1.02); /* Mid-way glow + slight overshoot */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Extra polish for the quote text */
+#dynamic-quote {
+    font-style: italic;
+    font-size: 1.8rem;
+    line-height: 1.6;
+    max-width: 90%;
+    margin: 0 auto;
+    transition: text-shadow 0.3s ease;
+}
+
+#dynamic-source {
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    #dynamic-quote {
+        font-size: 2.4rem;
+    }
+}
+/* Clear "X" Button */
+.clear-search-btn {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(139, 92, 246, 0.2);
+    border: none;
+    color: #e0e7ff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.clear-search-btn:not(.hidden) {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.clear-search-btn:hover {
+    background: rgba(139, 92, 246, 0.5);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.clear-search-btn i {
+    font-size: 1.1rem;
 }

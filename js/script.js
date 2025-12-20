@@ -172,6 +172,23 @@ window.addEventListener('load', () => {
     // Initial binding
     bindAllGameBoxes();
 
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+
+searchInput.addEventListener('input', () => {
+    if (searchInput.value.trim()) {
+        clearSearchBtn.classList.remove('hidden');
+    } else {
+        clearSearchBtn.classList.add('hidden');
+    }
+});
+
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearSearchBtn.classList.add('hidden');
+    searchInput.focus();
+    searchInput.dispatchEvent(new Event('input'));
+});
+
     // ==================== SEARCH FUNCTIONALITY ====================
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase().trim();
@@ -549,6 +566,21 @@ window.addEventListener('load', () => {
             }
         }
     });
+
+    // Theme Dropdown Handler
+    const themeSelect = document.getElementById('theme-select');
+
+    if (themeSelect) {
+        // Set current saved theme on load
+        const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
+        themeSelect.value = savedTheme;
+
+        // Change theme when selected
+        themeSelect.addEventListener('change', () => {
+        const selectedTheme = themeSelect.value;
+        applyTheme(selectedTheme);
+    });
+}
 
     // ==================== MISC FEATURES ====================
     // About:blank cloaking
