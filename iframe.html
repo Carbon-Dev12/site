@@ -2,37 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>iframe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Viewer</title>
     <style>
-        html, body {
+        body, html {
             margin: 0;
             padding: 0;
             height: 100%;
+            width: 100%;
             overflow: hidden;
+            background-color: #f4f4f4;
+            font-family: sans-serif;
         }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
         iframe {
+            flex-grow: 1;
+            border: none;
             width: 100%;
             height: 100%;
-            border: none;
+            display: none;
+        }
+
+        .status-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
+
+<div class="container" id="app">
+    <div id="status" class="status-message">Loading content...</div>
+</div>
+
 <script>
-    const params = new URLSearchParams(window.location.search);
-    const urlParam = params.get("url");
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const urlParam = params.get("url");
+        const statusEl = document.getElementById("status");
+        const appEl = document.getElementById("app");
 
-    function isValid(u) {
-        return typeof u === "string" && u.trim() !== "";
-    }
+        function getValidatedUrl(u) {
+            if (!u) return null;
+            try {
+                const url = new URL(u);
+                return url.protocol === "https:" ? url.href : null;
+            } catch (e) {
+                return null;
+            }
+        }
 
-    if (!isValid(urlParam)) {
-        alert("doesnt exist");
-    } else {
-        const iframe = document.createElement("iframe");
-        iframe.src = urlParam;
-        document.body.appendChild(iframe);
-    }
+        const cleanUrl = getValidatedUrl(urlParam);
+
+        if (!cleanUrl) {
+            statusEl.innerHTML = "<strong>Error:</strong> Invalid or missing URL.<br>Please provide a valid HTTPS URL.";
+        } else {
+            const iframe = document.createElement("iframe");
+            
+            iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms");
+            iframe.setAttribute("referrerpolicy", "no-referrer");
+            iframe.allow = "fullscreen";
+            iframe.src = cleanUrl;
+
+            iframe.onload = () => {
+                statusEl.style.display = "none";
+                iframe.style.display = "block";
+            };
+
+            iframe.onerror = () => {
+                statusEl.textContent = "Failed to load the requested content.";
+            };
+
+            appEl.appendChild(iframe);
+        }
+    })();
 </script>
 </body>
 </html>
