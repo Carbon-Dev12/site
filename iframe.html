@@ -54,9 +54,14 @@
 
         function getValidatedUrl(u) {
             if (!u) return null;
+            
+            if (u.startsWith("/") || u.startsWith("./") || u.startsWith("../")) {
+                return new URL(u, window.location.origin).href;
+            }
+
             try {
                 const url = new URL(u);
-                return url.protocol === "https:" ? url.href : null;
+                return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
             } catch (e) {
                 return null;
             }
@@ -65,7 +70,7 @@
         const cleanUrl = getValidatedUrl(urlParam);
 
         if (!cleanUrl) {
-            statusEl.innerHTML = "<strong>Error:</strong> Invalid or missing URL.<br>Please provide a valid HTTPS URL.";
+            statusEl.innerHTML = "<strong>Error:</strong> Invalid or missing URL.<br>Please provide a valid URL or local path.";
         } else {
             const iframe = document.createElement("iframe");
             
