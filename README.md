@@ -1,28 +1,22 @@
-StudyThemes
-Website
-Unblocked Games for School & Work
-Play your favorite browser games anywhere – even on restricted networks!
-StudyThemes.com is your ultimate destination for free unblocked games. Perfect for quick breaks at school, work, or home. No downloads, no installs – just instant fun!
-🚀 Features
+Imp Games (idfk what to call it yet)
+Unblocked Games!
+Imp Games Offers:
+╭ ┃ Hundreds of Unblocked Games (over 100+ titles, updated regularly)
+┊ ┃  Slope, Vex 3, Stickman Hook, Geometry Dash, Subway Surfers, Retro Bowl, Cookie Clicker & more
+┊ ┃ Favorites System: Heart games for quick access anytime
+┊ ┃ Recently Played Tracking: Jump back into your last sessions easily
+┊ ┃ Deep Appearance Customization: Change themes, backgrounds, icons, text colors, glow.
+┊ ┃ Tab Cloaking: Instantly cloak tab title & icon works best with about:blank.
+┊ ┃ Panic Key: Set a custom hotkey to redirect to a safe URL.
+┊ ┃ Performance: Enable Performance Mode (disables particles glow ect, show FPS counter
+┊ ┃ Audio Controls: Mute game sounds (WIP for full control)
+┊ ┃ Data Management: Backup/restore all settings, favorites & data; reset or delete permanently
+┊ ┃ Clean UI: Minimalistic site, great themes, no distractions. 
+╰ ┃ Play: No downloads, no sign-ups required.
+        
+more
 
-150+ Games
-School-Unblocked: Works on Chromebooks & restricted networks
-about:blank Cloaker: Stealth mode to bypass filters – open games in a blank tab!
-Custom Themes: 12+ styles including Dark, Light, AMOLED, Matrix, Cyberpunk, Sunset, Forest, Midnight, Blood, Purple Haze, Coffee, Ocean
-Panic Button: Quick reset to hide your session
-Fast Loading: Instant game starts – no lag!
-Ad-Light: Focus on gaming, not distractions
-
-
-Note: Games load via embeds/proxies. Ensure compliance with game devs' terms.
-🆘 Support & Issues
-
-Report broken games: Join our Discord
-Found a bug? Open an Issue
-🔗 Links
-
-🌐 Live Site: studythemes.com
-📱 Discord: discord.gg/YSdyfAfmvZ
-📂 GitHub: github.com/yourusername/studythemes
-
-Made with ❤️ for gamers everywhere. Game on! 🎯
+╭ ┃Updated every day.
+┊ ┃ No payments, or interruptions: Enjoy everything without payments or interruptions.
+┊ ┃ Discreet & Private: Perfect for school or restricted environments with advanced stealth tools.
+╰ ┃ Play Hundreds of Fun Games Discreetly – Anytime, Anywhere!
