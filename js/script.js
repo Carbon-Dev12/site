@@ -731,23 +731,19 @@ clearSearchBtn.addEventListener('click', () => {
     const menuClose = document.getElementById('menu-close');
     const mainContent = document.getElementById('main-content');
 
-    // Open sidebar
     menuToggle.addEventListener('click', () => {
         sidebar.classList.remove('-translate-x-full');
         sidebar.classList.add('translate-x-0');
-        // Optional: add overlay blur or push content
         mainContent.classList.add('lg:ml-0');
     });
 
-    // Close sidebar
     menuClose.addEventListener('click', () => {
         sidebar.classList.remove('translate-x-0');
         sidebar.classList.add('-translate-x-full');
     });
 
-    // Optional: Close when clicking outside on mobile
     document.addEventListener('click', (e) => {
-        if (window.innerWidth < 1024) { // lg breakpoint
+        if (window.innerWidth < 1024) {
             if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
                 sidebar.classList.remove('translate-x-0');
                 sidebar.classList.add('-translate-x-full');
