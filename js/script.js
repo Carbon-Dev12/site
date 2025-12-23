@@ -103,6 +103,9 @@ window.addEventListener('load', () => {
             searchInput.value = '';
             searchInput.dispatchEvent(new Event('input'));
         }
+        if (name === 'extras') {
+            setTimeout(bindExtraCards, 100);
+        }
 
         // Re-bind game boxes after view change
         setTimeout(bindAllGameBoxes, 100);
@@ -172,6 +175,29 @@ window.addEventListener('load', () => {
 
     // Initial binding
     bindAllGameBoxes();
+
+    const bindExtraCards = () => {
+        document.querySelectorAll('.extra-card[data-url]:not([data-bound])').forEach(card => {
+            card.dataset.bound = 'true';
+            
+            const content = {
+                url: card.dataset.url,
+                title: card.dataset.title || 'Content'
+            };
+
+            card.addEventListener('click', () => {
+                gameIframe.src = content.url;
+                gameLoader.classList.add('active');
+                gameLoader.querySelector('.main-message').textContent = `Loading ${content.title}...`;
+                
+                showView('game');
+                
+                gameIframe.onload = () => gameLoader.classList.remove('active');
+            });
+        });
+    };
+
+    bindExtraCards();
 
     const clearSearchBtn = document.getElementById('clear-search-btn');
 
@@ -266,41 +292,64 @@ clearSearchBtn.addEventListener('click', () => {
     const renderFavorites = () => {
         const wrapper = document.getElementById('favorites-wrapper');
         if (!wrapper) return;
-        const grid = wrapper.querySelector('.game-grid') || wrapper;
+        
+        let grid = wrapper.querySelector('.game-grid');
+        if (!grid) {
+            grid = document.createElement('div');
+            grid.className = 'game-grid';
+            wrapper.innerHTML = '';
+            wrapper.appendChild(grid);
+        }
+        
         grid.innerHTML = '';
-
         const favorites = getFavorites();
+        
         if (favorites.length === 0) {
-            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No favorite games yet. Click the heart on a game to add it!</p>';
+            const emptyMsg = document.createElement('p');
+            emptyMsg.className = 'text-center text-gray-400 text-xl py-10';
+            emptyMsg.textContent = 'No favorite games yet. Click the heart on a game to add it!';
+            grid.appendChild(emptyMsg);
             return;
         }
 
-        const row = document.createElement('div');
-        row.className = 'five-box-row';
-        favorites.forEach(game => row.appendChild(createGameBox(game, true)));
-        grid.appendChild(row);
+        favorites.forEach(game => {
+            const box = createGameBox(game, true);
+            grid.appendChild(box);
+        });
+        
         bindAllGameBoxes();
     };
 
     const renderRecent = () => {
         const wrapper = document.getElementById('recent-wrapper');
         if (!wrapper) return;
-        const grid = wrapper.querySelector('.game-grid') || wrapper;
+        
+        let grid = wrapper.querySelector('.game-grid');
+        if (!grid) {
+            grid = document.createElement('div');
+            grid.className = 'game-grid';
+            wrapper.innerHTML = '';
+            wrapper.appendChild(grid);
+        }
+        
         grid.innerHTML = '';
-
         const recent = getRecent();
+        const favorites = getFavorites();
+        
         if (recent.length === 0) {
-            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No recently played games.</p>';
+            const emptyMsg = document.createElement('p');
+            emptyMsg.className = 'text-center text-gray-400 text-xl py-10';
+            emptyMsg.textContent = 'No recently played games.';
+            grid.appendChild(emptyMsg);
             return;
         }
 
-        const row = document.createElement('div');
-        row.className = 'five-box-row';
         recent.forEach(game => {
-            const isFav = getFavorites().some(f => f.url === game.url);
-            row.appendChild(createGameBox(game, isFav));
+            const isFav = favorites.some(f => f.url === game.url);
+            const box = createGameBox(game, isFav);
+            grid.appendChild(box);
         });
-        grid.appendChild(row);
+        
         bindAllGameBoxes();
     };
 
