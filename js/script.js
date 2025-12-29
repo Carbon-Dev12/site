@@ -1,6 +1,4 @@
-// theres alot of "//" cuz i aint tryna read all of this
 window.addEventListener('load', () => {
-    // ==================== DOM ELEMENTS ====================
     const views = {
         'home-page': document.getElementById('home-page-view'),
         'games': document.getElementById('games-view'),
@@ -8,7 +6,8 @@ window.addEventListener('load', () => {
         'settings': document.getElementById('settings-view'),
         'favorites': document.getElementById('favorites-view'),
         'recent': document.getElementById('recent-view'),
-        'extras': document.getElementById('extras-view')
+        'extras': document.getElementById('extras-view'),
+        'proxy': document.getElementById('proxy-view')
     };
 
     const navButtons = document.querySelectorAll('.nav-button');
@@ -22,7 +21,6 @@ window.addEventListener('load', () => {
     const particleCanvas = document.getElementById('particle-canvas');
     const ctx = particleCanvas.getContext('2d');
 
-    // Settings controls
     const particlesToggle = document.getElementById('particles-toggle');
     const particleDensity = document.getElementById('particle-density');
     const particleDensityValue = document.getElementById('particle-density-value');
@@ -42,25 +40,17 @@ window.addEventListener('load', () => {
 
     const body = document.body;
 
-    // ==================== CONSTANTS & STATE ====================
     const FAVORITES_KEY = 'favoriteGames';
     const RECENT_KEY = 'recentGames';
     const MAX_RECENT = 20;
 
-    let originalGameBoxes = [];
+    let allGames = [];
     let particles = [];
     let animationFrameId = null;
     let showcaseInterval = null;
     let currentShowcaseIndex = 0;
     let hasAboutBlankRun = false;
 
-    // ==================== INITIAL SETUP ====================
-    // Cache original game boxes for search filtering
-    document.querySelectorAll('#game-box-wrapper .game-box').forEach(box => {
-        originalGameBoxes.push(box.cloneNode(true));
-    });
-
-    // Canvas setup for particles
     const resizeCanvas = () => {
         particleCanvas.width = window.innerWidth;
         particleCanvas.height = window.innerHeight;
@@ -68,18 +58,76 @@ window.addEventListener('load', () => {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // ==================== UTILITY FUNCTIONS ====================
+    const loadGamesFromJSON = async () => {
+        try {
+            const response = await fetch('g.json');
+            if (!response.ok) throw new Error('Failed to load g.json');
+            allGames = await response.json();
+            renderAllGames();
+        } catch (err) {
+            console.error('Error loading games:', err);
+            document.getElementById('game-box-wrapper').innerHTML = 
+                '<p class="text-center text-red-400 text-xl py-20">Failed to load games. Check console or g.json file.</p>';
+        }
+    };
+
+    const renderAllGames = (gamesToRender = allGames, category = 'all') => {
+        const wrapper = document.getElementById('game-box-wrapper');
+        wrapper.innerHTML = '';
+
+        let filtered = gamesToRender;
+
+        if (category !== 'all') {
+            filtered = gamesToRender.filter(game => game.category === category);
+        }
+
+        filtered.sort((a, b) => {
+            const titleA = a.title.toLowerCase();
+            const titleB = b.title.toLowerCase();
+            return titleA.localeCompare(titleB);
+        });
+
+        if (filtered.length === 0) {
+            wrapper.innerHTML = '<p class="text-center text-gray-400 text-xl py-20">No games found.</p>';
+            return;
+        }
+
+        for (let i = 0; i < filtered.length; i += 5) {
+            const row = document.createElement('div');
+            row.className = 'five-box-row';
+
+            filtered.slice(i, i + 5).forEach(game => {
+                const box = document.createElement('div');
+                box.className = 'game-box';
+                box.dataset.url = game.url;
+                box.dataset.title = game.title;
+                box.dataset.img = game.img || 'games/img/placeholder.png';
+
+                box.innerHTML = `
+                    <img src="${box.dataset.img}" alt="${game.title}" loading="lazy">
+                    <div class="game-title">${game.title}</div>
+                    <div class="favorite-btn"><i class="far fa-heart"></i></div>
+                `;
+
+                row.appendChild(box);
+            });
+
+            wrapper.appendChild(row);
+        }
+
+        bindAllGameBoxes();
+        updateHeartsInMainView();
+    };
+
     const getFavorites = () => JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
     const saveFavorites = (favs) => localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
     const getRecent = () => JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
     const saveRecent = (rec) => localStorage.setItem(RECENT_KEY, JSON.stringify(rec));
 
     const showView = (name) => {
-        // Hide all views
         Object.values(views).forEach(v => v?.classList.add('hidden-view'));
         views[name]?.classList.remove('hidden-view');
 
-        // Update navigation highlighting
         navButtons.forEach(btn => {
             btn.classList.remove('bg-purple-600', 'text-white');
             btn.classList.add('text-gray-300');
@@ -89,11 +137,9 @@ window.addEventListener('load', () => {
             }
         });
 
-        // Sidebar active state
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
         document.querySelector(`.sidebar-btn[data-view="${name}"]`)?.classList.add('active');
 
-        // View-specific logic
         if (name === 'home-page') startShowcase();
         else clearInterval(showcaseInterval);
 
@@ -101,34 +147,15 @@ window.addEventListener('load', () => {
         if (name === 'recent') renderRecent();
         if (name === 'games') {
             searchInput.value = '';
-            searchInput.dispatchEvent(new Event('input'));
+            searchInput.focus();
+            renderAllGames();
         }
-        if (name === 'extras') {
-            setTimeout(bindExtraCards, 100);
-        }
+        if (name === 'extras') setTimeout(bindExtraCards, 100);
 
-        // Re-bind game boxes after view change
         setTimeout(bindAllGameBoxes, 100);
     };
 
-    window.showView = showView; // Make global for external calls
-
-    // ==================== GAME BOX HANDLING ====================
-    const createGameBox = (game, isFavorite = false) => {
-        const box = document.createElement('div');
-        box.className = 'game-box';
-        box.dataset.url = game.url;
-        box.dataset.title = game.title;
-        box.dataset.img = game.img;
-
-        box.innerHTML = `
-            <img src="${game.img}" alt="${game.title}" loading="lazy">
-            <div class="game-title">${game.title}</div>
-            <div class="favorite-btn"><i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i></div>
-        `;
-
-        return box;
-    };
+    window.showView = showView;
 
     const bindAllGameBoxes = () => {
         document.querySelectorAll('.game-box[data-url]:not([data-bound])').forEach(box => {
@@ -140,7 +167,6 @@ window.addEventListener('load', () => {
                 img: box.dataset.img || ''
             };
 
-            // Favorite button
             const favBtn = box.querySelector('.favorite-btn');
             if (favBtn) {
                 favBtn.addEventListener('click', (e) => {
@@ -149,7 +175,6 @@ window.addEventListener('load', () => {
                 });
             }
 
-            // Main click - load game
             box.addEventListener('click', (e) => {
                 if (e.target.closest('.favorite-btn')) return;
 
@@ -164,91 +189,81 @@ window.addEventListener('load', () => {
 
                 if (gameVolumeToggle.checked) {
                     setTimeout(() => {
-                        try {
-                            gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*');
-                        } catch (err) {}
+                        try { gameIframe.contentWindow?.postMessage({type: 'mute', value: true}, '*'); } catch {} 
                     }, 1500);
                 }
             });
         });
     };
 
-    // Initial binding
-    bindAllGameBoxes();
-
     const bindExtraCards = () => {
         document.querySelectorAll('.extra-card[data-url]:not([data-bound])').forEach(card => {
             card.dataset.bound = 'true';
-            
-            const content = {
-                url: card.dataset.url,
-                title: card.dataset.title || 'Content'
-            };
-
+            const content = { url: card.dataset.url, title: card.dataset.title || 'Content' };
             card.addEventListener('click', () => {
                 gameIframe.src = content.url;
                 gameLoader.classList.add('active');
                 gameLoader.querySelector('.main-message').textContent = `Loading ${content.title}...`;
-                
                 showView('game');
-                
                 gameIframe.onload = () => gameLoader.classList.remove('active');
             });
         });
     };
-
     bindExtraCards();
 
     const clearSearchBtn = document.getElementById('clear-search-btn');
-
-searchInput.addEventListener('input', () => {
-    if (searchInput.value.trim()) {
-        clearSearchBtn.classList.remove('hidden');
-    } else {
-        clearSearchBtn.classList.add('hidden');
-    }
-});
-
-clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    clearSearchBtn.classList.add('hidden');
-    searchInput.focus();
-    searchInput.dispatchEvent(new Event('input'));
-});
-
-    // ==================== SEARCH FUNCTIONALITY ====================
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        const wrapper = document.getElementById('game-box-wrapper');
-        wrapper.innerHTML = '';
-
-        const matchingGames = originalGameBoxes.filter(box => {
-            const title = (box.dataset.title || '').toLowerCase();
-            return query === '' || title.includes(query);
-        });
-
-        if (matchingGames.length === 0) {
-            wrapper.innerHTML = '<p class="text-center text-gray-400 text-xl py-20">No games found matching your search.</p>';
-            return;
-        }
-
-        // Group into rows of 5
-        for (let i = 0; i < matchingGames.length; i += 5) {
-            const row = document.createElement('div');
-            row.className = 'five-box-row';
-            matchingGames.slice(i, i + 5).forEach(clone => row.appendChild(clone.cloneNode(true)));
-            wrapper.appendChild(row);
-        }
-
-        bindAllGameBoxes(); // Re-bind after DOM update
-        updateHeartsInMainView();
+    searchInput.addEventListener('input', () => {
+        clearSearchBtn.classList.toggle('hidden', !searchInput.value.trim());
+        const query = searchInput.value.toLowerCase().trim();
+        const filtered = allGames.filter(g => g.title.toLowerCase().includes(query));
+        const currentCategory = document.getElementById('category-current-text')?.textContent.trim() === 'All Games' ? 'all' :
+            Array.from(document.querySelectorAll('.category-option')).find(o => o.textContent.trim() === document.getElementById('category-current-text').textContent.trim())?.dataset.category || 'all';
+        renderAllGames(filtered, currentCategory);
     });
 
-    // ==================== FAVORITES & RECENT ====================
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        searchInput.focus();
+        renderAllGames();
+    });
+
+    const categoryToggle = document.getElementById('category-dropdown-toggle');
+    const categoryMenu = document.getElementById('category-dropdown-menu');
+    const categoryCurrentText = document.getElementById('category-current-text');
+    const dropdownArrow = document.getElementById('dropdown-arrow');
+    const categoryOptions = document.querySelectorAll('.category-option');
+
+    if (categoryToggle) {
+        categoryToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            categoryMenu.classList.toggle('hidden');
+            dropdownArrow.classList.toggle('rotate-180');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!categoryToggle.contains(e.target) && !categoryMenu.contains(e.target)) {
+                categoryMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+            }
+        });
+
+        categoryOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const category = option.dataset.category;
+                categoryCurrentText.textContent = option.textContent.trim();
+                categoryOptions.forEach(opt => opt.classList.remove('bg-purple-600/50'));
+                option.classList.add('bg-purple-600/50');
+                renderAllGames(allGames, category);
+                categoryMenu.classList.add('hidden');
+                dropdownArrow.classList.remove('rotate-180');
+            });
+        });
+    }
+
     const toggleFavorite = (game, boxElement = null) => {
         let favorites = getFavorites();
         const index = favorites.findIndex(f => f.url === game.url);
-
         const heartIcons = boxElement
             ? [boxElement.querySelector('.favorite-btn i')]
             : document.querySelectorAll(`.game-box[data-url="${game.url}"] .favorite-btn i`);
@@ -277,10 +292,10 @@ clearSearchBtn.addEventListener('click', () => {
     };
 
     const updateHeartsInMainView = () => {
+        const favorites = getFavorites();
         document.querySelectorAll('#game-box-wrapper .game-box[data-url]').forEach(box => {
             const url = box.dataset.url;
-            if (!url || url.includes('placeholder')) return;
-            const isFav = getFavorites().some(f => f.url === url);
+            const isFav = favorites.some(f => f.url === url);
             const heart = box.querySelector('.favorite-btn i');
             if (heart) {
                 heart.classList.toggle('fas', isFav);
@@ -299,9 +314,10 @@ clearSearchBtn.addEventListener('click', () => {
             grid.className = 'game-grid';
             wrapper.innerHTML = '';
             wrapper.appendChild(grid);
+        } else {
+            grid.innerHTML = '';
         }
-        
-        grid.innerHTML = '';
+
         const favorites = getFavorites();
         
         if (favorites.length === 0) {
@@ -312,8 +328,40 @@ clearSearchBtn.addEventListener('click', () => {
             return;
         }
 
-        favorites.forEach(game => {
-            const box = createGameBox(game, true);
+        const sortedFavorites = [...favorites].sort((a, b) => {
+            const titleA = (a.title || '').toLowerCase().trim();
+            const titleB = (b.title || '').toLowerCase().trim();
+            return titleA.localeCompare(titleB);
+        });
+
+        sortedFavorites.forEach(game => {
+            if (!game || !game.url || !game.title) return;
+            
+            const box = document.createElement('div');
+            box.className = 'game-box';
+            box.dataset.url = game.url;
+            box.dataset.title = game.title;
+            box.dataset.img = game.img || 'games/img/placeholder.png';
+            
+            const img = document.createElement('img');
+            img.src = box.dataset.img;
+            img.alt = game.title;
+            img.loading = 'lazy';
+            
+            const title = document.createElement('div');
+            title.className = 'game-title';
+            title.textContent = game.title;
+            
+            const favBtn = document.createElement('div');
+            favBtn.className = 'favorite-btn';
+            const heartIcon = document.createElement('i');
+            heartIcon.className = 'fas fa-heart';
+            favBtn.appendChild(heartIcon);
+            
+            box.appendChild(img);
+            box.appendChild(title);
+            box.appendChild(favBtn);
+            
             grid.appendChild(box);
         });
         
@@ -323,37 +371,41 @@ clearSearchBtn.addEventListener('click', () => {
     const renderRecent = () => {
         const wrapper = document.getElementById('recent-wrapper');
         if (!wrapper) return;
-        
-        let grid = wrapper.querySelector('.game-grid');
-        if (!grid) {
-            grid = document.createElement('div');
-            grid.className = 'game-grid';
-            wrapper.innerHTML = '';
-            wrapper.appendChild(grid);
-        }
-        
-        grid.innerHTML = '';
+        let grid = wrapper.querySelector('.game-grid') || document.createElement('div');
+        grid.className = 'game-grid';
+        wrapper.innerHTML = '';
+        wrapper.appendChild(grid);
+
         const recent = getRecent();
         const favorites = getFavorites();
-        
         if (recent.length === 0) {
-            const emptyMsg = document.createElement('p');
-            emptyMsg.className = 'text-center text-gray-400 text-xl py-10';
-            emptyMsg.textContent = 'No recently played games.';
-            grid.appendChild(emptyMsg);
+            grid.innerHTML = '<p class="text-center text-gray-400 text-xl py-10">No recently played games.</p>';
             return;
         }
 
-        recent.forEach(game => {
+        const sortedRecent = [...recent].sort((a, b) => {
+            const titleA = (a.title || '').toLowerCase();
+            const titleB = (b.title || '').toLowerCase();
+            return titleA.localeCompare(titleB);
+        });
+
+        sortedRecent.forEach(game => {
             const isFav = favorites.some(f => f.url === game.url);
-            const box = createGameBox(game, isFav);
+            const box = document.createElement('div');
+            box.className = 'game-box';
+            box.dataset.url = game.url;
+            box.dataset.title = game.title;
+            box.dataset.img = game.img || '';
+            box.innerHTML = `
+                <img src="${game.img || 'games/img/placeholder.png'}" alt="${game.title}" loading="lazy">
+                <div class="game-title">${game.title}</div>
+                <div class="favorite-btn"><i class="${isFav ? 'fas' : 'far'} fa-heart"></i></div>
+            `;
             grid.appendChild(box);
         });
-        
         bindAllGameBoxes();
     };
 
-    // ==================== SHOWCASE ====================
     const updateShowcase = () => {
         const gameBoxes = document.querySelectorAll('.game-box[data-url]');
         let box;
@@ -378,7 +430,6 @@ clearSearchBtn.addEventListener('click', () => {
         showcaseInterval = setInterval(updateShowcase, parseInt(showcaseSpeed.value));
     };
 
-    // ==================== TYPING EFFECT ====================
     const words = ['Freedom.', 'Beauty.', 'Peace.', 'Wonder.', 'Abundance.', 'Creativity.', 'Success.', 'Purpose.', 'Properity.'];
     let wordIndex = 0, charIndex = 0, isDeleting = false;
 
@@ -406,7 +457,6 @@ clearSearchBtn.addEventListener('click', () => {
     };
     type();
 
-    // ==================== PARTICLES ====================
     class Particle {
         constructor() {
             this.x = Math.random() * particleCanvas.width;
@@ -472,7 +522,6 @@ clearSearchBtn.addEventListener('click', () => {
         }
     };
 
-    // ==================== SETTINGS & PERSISTENCE ====================
     const applyTheme = (theme) => {
         body.setAttribute('data-theme', theme);
         localStorage.setItem('selectedTheme', theme);
@@ -524,7 +573,6 @@ clearSearchBtn.addEventListener('click', () => {
     };
     loadSettings();
 
-    // Settings event listeners
     document.querySelectorAll('.theme-option').forEach(option => {
         option.addEventListener('click', () => applyTheme(option.dataset.theme));
     });
@@ -617,23 +665,18 @@ clearSearchBtn.addEventListener('click', () => {
         }
     });
 
-    // Theme Dropdown Handler
     const themeSelect = document.getElementById('theme-select');
 
     if (themeSelect) {
-        // Set current saved theme on load
         const savedTheme = localStorage.getItem('selectedTheme') || 'dark';
         themeSelect.value = savedTheme;
 
-        // Change theme when selected
         themeSelect.addEventListener('change', () => {
         const selectedTheme = themeSelect.value;
         applyTheme(selectedTheme);
     });
 }
 
-    // ==================== MISC FEATURES ====================
-    // About:blank cloaking
     const openInAboutBlank = (sourceUrl) => {
         if (hasAboutBlankRun) return;
         hasAboutBlankRun = true;
@@ -676,7 +719,6 @@ clearSearchBtn.addEventListener('click', () => {
         openInAboutBlank(window.location.href);
     });
 
-    // Fullscreen & new tab buttons
     document.getElementById('fullscreen-btn-game')?.addEventListener('click', () => {
         gameIframe.requestFullscreen?.();
     });
@@ -685,7 +727,6 @@ clearSearchBtn.addEventListener('click', () => {
         if (gameIframe.src) window.open(gameIframe.src, '_blank');
     });
 
-    // Export / Import / Reset
     document.getElementById('export-settings-btn')?.addEventListener('click', () => {
         const data = { localStorage: { ...localStorage } };
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -723,7 +764,6 @@ clearSearchBtn.addEventListener('click', () => {
         }
     });
 
-    // FPS Counter
     if (fpsToggle && fpsValue) {
         let frames = 0;
         let lastTime = performance.now();
@@ -755,7 +795,6 @@ clearSearchBtn.addEventListener('click', () => {
         fpsToggle.addEventListener('change', () => toggleFPS(fpsToggle.checked));
     }
 
-    // Tab switching in settings
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
             document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -765,16 +804,16 @@ clearSearchBtn.addEventListener('click', () => {
         });
     });
 
-    // Navigation
     navButtons.forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
 
-    // Initial render
+    loadGamesFromJSON();
+
     showView('home-page');
     startShowcase();
     renderFavorites();
     renderRecent();
     updateHeartsInMainView();
-});
+
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menu-toggle');
     const menuClose = document.getElementById('menu-close');
@@ -799,3 +838,4 @@ clearSearchBtn.addEventListener('click', () => {
             }
         }
     });
+});
